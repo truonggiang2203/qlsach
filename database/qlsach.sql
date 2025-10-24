@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 24, 2025 at 09:00 AM
+-- Generation Time: Oct 24, 2025 at 10:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,14 @@ CREATE TABLE `binh_luan` (
   `so_sao` float(6,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `binh_luan`
+--
+
+INSERT INTO `binh_luan` (`id_bl`, `id_sach`, `binh_luan`, `so_sao`) VALUES
+('BL001', 'S0003', 'Sách rất hay và hữu ích cho công việc!', 5.00),
+('BL002', 'S0002', 'Nội dung cảm động, đọc rất lôi cuốn.', 4.50);
+
 -- --------------------------------------------------------
 
 --
@@ -45,6 +53,15 @@ CREATE TABLE `chi_tiet_don_hang` (
   `id_sach` varchar(5) NOT NULL,
   `so_luong_ban` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `chi_tiet_don_hang`
+--
+
+INSERT INTO `chi_tiet_don_hang` (`id_don_hang`, `id_sach`, `so_luong_ban`) VALUES
+('DH001', 'S0001', 2),
+('DH001', 'S0003', 1),
+('DH002', 'S0002', 1);
 
 -- --------------------------------------------------------
 
@@ -73,6 +90,14 @@ CREATE TABLE `don_hang` (
   `dia_chi_nhan_hang` varchar(250) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `don_hang`
+--
+
+INSERT INTO `don_hang` (`id_don_hang`, `id_tk`, `id_trang_thai`, `ngay_gio_tao_don`, `dia_chi_nhan_hang`) VALUES
+('DH001', 'KH001', 1, '2025-10-23 10:30:00', '456 Đường ABC, Q1, TP. HCM'),
+('DH002', 'KH002', 3, '2025-10-24 11:00:00', '789 Đường XYZ, Q3, TP. HCM');
+
 -- --------------------------------------------------------
 
 --
@@ -84,6 +109,26 @@ CREATE TABLE `gia_sach` (
   `ngay_gio_ban` datetime NOT NULL,
   `gia_sach_ban` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `gia_sach`
+--
+
+INSERT INTO `gia_sach` (`id_sach`, `ngay_gio_ban`, `gia_sach_ban`) VALUES
+('S0001', '2025-01-01 00:00:00', 20000),
+('S0002', '2025-01-01 00:00:00', 120000),
+('S0003', '2025-01-01 00:00:00', 150000),
+('S0004', '2025-01-01 00:00:00', 250000),
+('S0005', '2025-01-01 00:00:00', 180000),
+('S0006', '2025-01-01 00:00:00', 300000),
+('S0007', '2025-01-01 00:00:00', 18000),
+('S0008', '2025-01-01 00:00:00', 135000),
+('S0009', '2025-01-01 00:00:00', 110000),
+('S0010', '2025-01-01 00:00:00', 450000),
+('S0011', '2025-01-01 00:00:00', 80000),
+('S0012', '2025-01-01 00:00:00', 160000),
+('S0013', '2025-01-01 00:00:00', 190000),
+('S0014', '2025-01-01 00:00:00', 95000);
 
 -- --------------------------------------------------------
 
@@ -100,6 +145,14 @@ CREATE TABLE `khuyen_mai` (
   `trang_thai_km` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `khuyen_mai`
+--
+
+INSERT INTO `khuyen_mai` (`id_km`, `ten_km`, `phan_tram_km`, `ngay_bat_dau`, `ngay_ket_thuc`, `trang_thai_km`) VALUES
+('KM000', 'Không khuyến mãi', 0.00, '2020-01-01 00:00:00', '2099-12-31 00:00:00', 'active'),
+('KM001', 'Giảm 10% toàn cửa hàng', 10.00, '2025-10-01 00:00:00', '2025-10-31 00:00:00', 'active');
+
 -- --------------------------------------------------------
 
 --
@@ -111,6 +164,16 @@ CREATE TABLE `loai_sach` (
   `ten_loai` varchar(250) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `loai_sach`
+--
+
+INSERT INTO `loai_sach` (`id_loai`, `ten_loai`) VALUES
+('LS001', 'Sách Văn Học'),
+('LS002', 'Sách Kinh Tế'),
+('LS003', 'Sách Kỹ Năng'),
+('LS004', 'Sách Thiếu Nhi');
+
 -- --------------------------------------------------------
 
 --
@@ -121,6 +184,14 @@ CREATE TABLE `ngon_ngu` (
   `id_ngon_ngu` varchar(5) NOT NULL,
   `ngon_ngu` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ngon_ngu`
+--
+
+INSERT INTO `ngon_ngu` (`id_ngon_ngu`, `ngon_ngu`) VALUES
+('NN001', 'Tiếng Việt'),
+('NN002', 'Tiếng Anh');
 
 -- --------------------------------------------------------
 
@@ -156,6 +227,14 @@ CREATE TABLE `nha_cung_cap` (
   `trang_thai_ncc` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `nha_cung_cap`
+--
+
+INSERT INTO `nha_cung_cap` (`id_ncc`, `ten_ncc`, `dia_chi_ncc`, `sdt_ncc`, `email_ncc`, `trang_thai_ncc`) VALUES
+('NCC01', 'Công ty Fahasa', '123 Lê Lợi, Q1, TPHCM', '02838123456', 'contact@fahasa.com', 'active'),
+('NCC02', 'Công ty Phương Nam', '456 Nguyễn Huệ, Q1, TPHCM', '02838654321', 'info@phuongnam.com', 'active');
+
 -- --------------------------------------------------------
 
 --
@@ -166,6 +245,15 @@ CREATE TABLE `nxb` (
   `id_nxb` varchar(5) NOT NULL,
   `ten_nxb` varchar(250) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `nxb`
+--
+
+INSERT INTO `nxb` (`id_nxb`, `ten_nxb`) VALUES
+('NXB01', 'NXB Trẻ'),
+('NXB02', 'NXB Kim Đồng'),
+('NXB03', 'NXB Tổng hợp TP.HCM');
 
 -- --------------------------------------------------------
 
@@ -193,6 +281,15 @@ CREATE TABLE `phuong_thuc_thanh_toan` (
   `ten_pttt` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `phuong_thuc_thanh_toan`
+--
+
+INSERT INTO `phuong_thuc_thanh_toan` (`id_pttt`, `ten_pttt`) VALUES
+('PT001', 'Thanh toán khi nhận hàng (COD)'),
+('PT002', 'Ví điện tử MoMo'),
+('PT003', 'Thẻ ngân hàng');
+
 -- --------------------------------------------------------
 
 --
@@ -210,6 +307,26 @@ CREATE TABLE `sach` (
   `so_luong_ton` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `sach`
+--
+
+INSERT INTO `sach` (`id_sach`, `id_nxb`, `id_loai`, `id_km`, `ten_sach`, `mo_ta`, `trang_thai_sach`, `so_luong_ton`) VALUES
+('S0001', 'NXB02', 'LS004', 'KM000', 'Doraemon - Tập 1', 'Truyện tranh về chú mèo máy Doraemon...', 1, 100),
+('S0002', 'NXB01', 'LS001', 'KM001', 'Tôi thấy hoa vàng trên cỏ xanh', 'Truyện dài của Nguyễn Nhật Ánh...', 1, 50),
+('S0003', 'NXB03', 'LS003', 'KM000', 'Đắc Nhân Tâm', 'Nghệ thuật giao tiếp và ứng xử...', 1, 75),
+('S0004', 'NXB01', 'LS002', 'KM000', 'Marketing Căn Bản', 'Nguyên lý Marketing của Philip Kotler...', 1, 30),
+('S0005', 'NXB01', 'LS001', 'KM001', 'Harry Potter và Hòn đá Phù thủy', 'Tập 1 của series truyện fantasy nổi tiếng...', 1, 120),
+('S0006', 'NXB03', 'LS002', 'KM000', 'Kinh tế học Vĩ mô', 'Sách giáo trình chuyên ngành kinh tế...', 1, 40),
+('S0007', 'NXB02', 'LS004', 'KM000', 'Thám tử lừng danh Conan - Tập 1', 'Truyện tranh trinh thám Nhật Bản...', 1, 200),
+('S0008', 'NXB03', 'LS003', 'KM001', 'Quẳng Gánh Lo Đi và Vui Sống', 'Nghệ thuật đối mặt với căng thẳng...', 1, 60),
+('S0009', 'NXB01', 'LS001', 'KM000', 'Mắt biếc', 'Truyện dài lãng mạn của Nguyễn Nhật Ánh...', 1, 80),
+('S0010', 'NXB03', 'LS003', 'KM000', 'English Grammar in Use', 'Sách học ngữ pháp Tiếng Anh cơ bản...', 1, 50),
+('S0011', 'NXB01', 'LS001', 'KM001', 'Nhà Giả Kim', 'Tiểu thuyết phiêu lưu của Paulo Coelho...', 1, 100),
+('S0012', 'NXB03', 'LS002', 'KM000', 'Cha giàu, Cha nghèo', 'Sách về tư duy tài chính cá nhân...', 1, 90),
+('S0013', 'NXB01', 'LS003', 'KM001', 'Atomic Habits (Thói quen nguyên tử)', 'Thay đổi thói quen nhỏ, hiệu quả bất ngờ...', 1, 110),
+('S0014', 'NXB01', 'LS001', 'KM000', 'Cây cam ngọt của tôi', 'Câu chuyện cảm động về tuổi thơ...', 1, 70);
+
 -- --------------------------------------------------------
 
 --
@@ -220,6 +337,26 @@ CREATE TABLE `s_ncc` (
   `id_sach` varchar(5) NOT NULL,
   `id_ncc` varchar(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `s_ncc`
+--
+
+INSERT INTO `s_ncc` (`id_sach`, `id_ncc`) VALUES
+('S0001', 'NCC02'),
+('S0002', 'NCC01'),
+('S0003', 'NCC01'),
+('S0004', 'NCC02'),
+('S0005', 'NCC01'),
+('S0006', 'NCC02'),
+('S0007', 'NCC02'),
+('S0008', 'NCC01'),
+('S0009', 'NCC01'),
+('S0010', 'NCC02'),
+('S0011', 'NCC01'),
+('S0012', 'NCC01'),
+('S0013', 'NCC02'),
+('S0014', 'NCC01');
 
 -- --------------------------------------------------------
 
@@ -232,6 +369,26 @@ CREATE TABLE `s_nns` (
   `id_ngon_ngu` varchar(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `s_nns`
+--
+
+INSERT INTO `s_nns` (`id_sach`, `id_ngon_ngu`) VALUES
+('S0001', 'NN001'),
+('S0002', 'NN001'),
+('S0003', 'NN001'),
+('S0004', 'NN002'),
+('S0005', 'NN001'),
+('S0006', 'NN001'),
+('S0007', 'NN001'),
+('S0008', 'NN001'),
+('S0009', 'NN001'),
+('S0010', 'NN002'),
+('S0011', 'NN001'),
+('S0012', 'NN001'),
+('S0013', 'NN002'),
+('S0014', 'NN001');
+
 -- --------------------------------------------------------
 
 --
@@ -243,6 +400,25 @@ CREATE TABLE `s_tg` (
   `id_tac_gia` varchar(5) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `s_tg`
+--
+
+INSERT INTO `s_tg` (`id_sach`, `id_tac_gia`) VALUES
+('S0002', 'TG001'),
+('S0003', 'TG003'),
+('S0004', 'TG002'),
+('S0005', 'TG004'),
+('S0006', 'TG002'),
+('S0007', 'TG001'),
+('S0008', 'TG003'),
+('S0009', 'TG001'),
+('S0010', 'TG004'),
+('S0011', 'TG001'),
+('S0012', 'TG003'),
+('S0013', 'TG003'),
+('S0014', 'TG001');
+
 -- --------------------------------------------------------
 
 --
@@ -253,6 +429,16 @@ CREATE TABLE `tac_gia` (
   `id_tac_gia` varchar(5) NOT NULL,
   `ten_tac_gia` varchar(250) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tac_gia`
+--
+
+INSERT INTO `tac_gia` (`id_tac_gia`, `ten_tac_gia`) VALUES
+('TG001', 'Nguyễn Nhật Ánh'),
+('TG002', 'Philip Kotler'),
+('TG003', 'Dale Carnegie'),
+('TG004', 'J.K. Rowling');
 
 -- --------------------------------------------------------
 
@@ -297,6 +483,14 @@ CREATE TABLE `thanh_toan` (
   `ngay_gio_thanh_toan` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `thanh_toan`
+--
+
+INSERT INTO `thanh_toan` (`id_pttt`, `id_don_hang`, `trang_thai_tt`, `ngay_gio_thanh_toan`) VALUES
+('PT001', 'DH001', 0, '2025-10-23 10:30:00'),
+('PT002', 'DH002', 1, '2025-10-24 11:00:00');
+
 -- --------------------------------------------------------
 
 --
@@ -309,6 +503,18 @@ CREATE TABLE `the_loai` (
   `ten_the_loai` varchar(250) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `the_loai`
+--
+
+INSERT INTO `the_loai` (`id_the_loai`, `id_loai`, `ten_the_loai`) VALUES
+('TL001', 'LS001', 'Tiểu thuyết'),
+('TL002', 'LS001', 'Truyện ngắn'),
+('TL003', 'LS002', 'Marketing'),
+('TL004', 'LS002', 'Quản trị'),
+('TL005', 'LS003', 'Giao tiếp'),
+('TL006', 'LS004', 'Truyện cổ tích');
+
 -- --------------------------------------------------------
 
 --
@@ -318,6 +524,13 @@ CREATE TABLE `the_loai` (
 CREATE TABLE `thoi_diem` (
   `ngay_gio_ban` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `thoi_diem`
+--
+
+INSERT INTO `thoi_diem` (`ngay_gio_ban`) VALUES
+('2025-01-01 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -329,6 +542,17 @@ CREATE TABLE `trang_thai_don_hang` (
   `id_trang_thai` int(11) NOT NULL,
   `trang_thai_dh` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `trang_thai_don_hang`
+--
+
+INSERT INTO `trang_thai_don_hang` (`id_trang_thai`, `trang_thai_dh`) VALUES
+(1, 'Chờ xử lý'),
+(2, 'Đã xác nhận'),
+(3, 'Đang giao hàng'),
+(4, 'Đã giao thành công'),
+(5, 'Đã hủy');
 
 --
 -- Indexes for dumped tables
@@ -496,7 +720,7 @@ ALTER TABLE `trang_thai_don_hang`
 -- AUTO_INCREMENT for table `trang_thai_don_hang`
 --
 ALTER TABLE `trang_thai_don_hang`
-  MODIFY `id_trang_thai` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_trang_thai` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
