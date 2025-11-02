@@ -5,68 +5,112 @@ class User {
     private $db;
 
     public function __construct() {
-        $this->db = new Database(); // Khởi tạo kết nối CSDL
+        $this->db = new Database();
     }
 
-    /**
-     * Đăng ký tài khoản mới
-     * Lưu ý: id_tk cần được tạo duy nhất. 
-     * Ví dụ này gán cứng 'KH' cho id_nd (khách hàng).
-     */
+    /* =====================================================
+       🧩 ĐĂNG KÝ TÀI KHOẢN
+    ===================================================== */
     public function register($id_tk, $ho_ten, $email, $sdt, $password, $dia_chi) {
-        // **Quan trọng: Hash mật khẩu trước khi lưu**
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        
-        // 'KH' là id_nd cho 'khach_hang' mà ta đã thêm ở trên
-        $id_nd_khach_hang = 'KH'; 
-        
-        $sql = "INSERT INTO tai_khoan (id_tk, id_nd, ho_ten, email, sdt, mat_khau, dia_chi_giao_hang, ngay_gio_tao_tk, gioi_tinh) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 'Khác')"; // Thêm các trường theo CSDL
-        
+        $id_nd_khach_hang = 'KH'; // Mặc định gán quyền khách hàng
+
+        $sql = "INSERT INTO tai_khoan 
+                (id_tk, id_nd, ho_ten, email, sdt, mat_khau, dia_chi_giao_hang, ngay_gio_tao_tk, gioi_tinh) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 'Khác')";
+
         $stmt = $this->db->prepare($sql);
-        
+
         try {
-            // Bạn cần tự tạo $id_tk duy nhất (ví dụ: 'TK' . rand(100,999))
-            $stmt->execute([$id_tk, $id_nd_khach_hang, $ho_ten, $email, $sdt, $hashed_password, $dia_chi]);
-            return true;
+            return $stmt->execute([$id_tk, $id_nd_khach_hang, $ho_ten, $email, $sdt, $hashed_password, $dia_chi]);
         } catch (PDOException $e) {
-            // Lỗi (có thể do trùng email, sdt hoặc id_tk)
+            error_log("Register Error: " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Đăng nhập
-     * Trả về thông tin user và quyền (phan_quyen) nếu thành công
-     */
+
+    /* =====================================================
+       🔐 ĐĂNG NHẬP
+       → Trả về đối tượng user (bao gồm phân quyền)
+    ===================================================== */
     public function login($email, $password) {
-        // Lấy thông tin tài khoản VÀ quyền của họ
         $sql = "SELECT tk.*, nd.phan_quyen 
-                FROM tai_khoan AS tk
-                JOIN nguoi_dung AS nd ON tk.id_nd = nd.id_nd
+                FROM tai_khoan tk
+                JOIN nguoi_dung nd ON tk.id_nd = nd.id_nd
                 WHERE tk.email = ?";
-        
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$email]);
+
         $user = $stmt->fetch(PDO::FETCH_OBJ);
 
-        if ($user) {
-            // **Kiểm tra mật khẩu đã hash**
-            if (password_verify($password, $user->mat_khau)) {
-                return $user; // Trả về toàn bộ thông tin user (bao gồm cả 'phan_quyen')
-            }
+        if ($user && password_verify($password, $user->mat_khau)) {
+            return $user;
         }
-        return false; // Sai email hoặc password
+        return false;
     }
 
-    /**
-     * Tìm tài khoản bằng email
-     */
+
+    /* =====================================================
+       🔍 TÌM NGƯỜI DÙNG THEO EMAIL
+    ===================================================== */
     public function findUserByEmail($email) {
         $sql = "SELECT * FROM tai_khoan WHERE email = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+
+    /* =====================================================
+       🔍 LẤY THÔNG TIN USER THEO ID_TK
+    ===================================================== */
+    public function getUserById($id_tk) {
+        $sql = "SELECT tk.*, nd.phan_quyen 
+                FROM tai_khoan tk
+                JOIN nguoi_dung nd ON tk.id_nd = nd.id_nd
+                WHERE tk.id_tk = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_tk]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+
+    /* =====================================================
+       🧾 CẬP NHẬT THÔNG TIN USER
+    ===================================================== */
+    public function updateUser($id_tk, $ho_ten, $email, $sdt, $dia_chi) {
+        $sql = "UPDATE tai_khoan 
+                SET ho_ten = ?, email = ?, sdt = ?, dia_chi_giao_hang = ? 
+                WHERE id_tk = ?";
+        $stmt = $this->db->prepare($sql);
+
+        try {
+            return $stmt->execute([$ho_ten, $email, $sdt, $dia_chi, $id_tk]);
+        } catch (PDOException $e) {
+            error_log("Update Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
+    /* =====================================================
+       🔑 ĐỔI MẬT KHẨU
+    ===================================================== */
+    public function changePassword($id_tk, $old_password, $new_password) {
+        $sql = "SELECT mat_khau FROM tai_khoan WHERE id_tk = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_tk]);
+        $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if (!$user || !password_verify($old_password, $user->mat_khau)) {
+            return false;
+        }
+
+        $hashed_new = password_hash($new_password, PASSWORD_DEFAULT);
+        $sql = "UPDATE tai_khoan SET mat_khau = ? WHERE id_tk = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$hashed_new, $id_tk]);
     }
 }
 ?>
