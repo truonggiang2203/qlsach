@@ -1,27 +1,71 @@
 <?php
-session_start();
-include('../config/db.php');
-include('../includes/header.php');
+include_once '../includes/header.php';
 
-$user_id = $_SESSION['user_id'];
-$sql = "SELECT * FROM tai_khoan WHERE id_tk='$user_id'";
-$user = mysqli_fetch_assoc(mysqli_query($conn, $sql));
-
-if (isset($_POST['save'])) {
-    $name = $_POST['ho_ten'];
-    $sdt = $_POST['sdt'];
-    $email = $_POST['email'];
-    $diachi = $_POST['dia_chi_giao_hang'];
-    mysqli_query($conn, "UPDATE tai_khoan SET ho_ten='$name', sdt='$sdt', email='$email', dia_chi_giao_hang='$diachi' WHERE id_tk='$user_id'");
-    echo "<script>alert('Cập nhật thành công');</script>";
+// KHÔNG cần session_start() ở đây vì header.php đã có
+if (!isset($_SESSION['id_tk'])) {
+    header("Location: ../guest/login.php");
+    exit;
 }
+
+// ✅ Load dữ liệu từ database để đảm bảo luôn có dữ liệu mới nhất
+require_once '../models/User.php';
+$userModel = new User();
+$user = $userModel->getUserById($_SESSION['id_tk']);
+
+// Nếu không tìm thấy user, redirect về login
+if (!$user) {
+    header("Location: ../guest/login.php");
+    exit;
+}
+
+// ✅ Cập nhật session với dữ liệu từ database
+$_SESSION['ho_ten'] = $user->ho_ten;
+$_SESSION['email'] = $user->email;
+$_SESSION['sdt'] = $user->sdt;
+$_SESSION['dia_chi'] = $user->dia_chi_giao_hang;
 ?>
-<h2>Thông tin cá nhân</h2>
-<form method="POST">
-Tên: <input type="text" name="ho_ten" value="<?=$user['ho_ten']?>"><br>
-Email: <input type="email" name="email" value="<?=$user['email']?>"><br>
-SĐT: <input type="text" name="sdt" value="<?=$user['sdt']?>"><br>
-Địa chỉ: <input type="text" name="dia_chi_giao_hang" value="<?=$user['dia_chi_giao_hang']?>"><br><br>
-<input type="submit" name="save" value="Lưu thay đổi">
-</form>
-<?php include('../includes/footer.php'); ?>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <span class="profile-icon">👤</span>
+            <h2>Hồ sơ của tôi</h2>
+            <p>Cập nhật thông tin cá nhân và địa chỉ giao hàng</p>
+        </div>
+
+        <?php if (isset($_GET['success'])): ?>
+            <div class="alert alert-success">Cập nhật thông tin thành công!</div>
+        <?php endif; ?>
+
+        <form action="../controllers/userController.php?action=updateProfile" method="POST" class="profile-form">
+            <div class="form-group">
+                <label>Họ tên:</label>
+                <input type="text" name="ho_ten" value="<?= htmlspecialchars($user->ho_ten ?? '') ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($user->email ?? '') ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Số điện thoại:</label>
+                <input type="text" name="sdt" value="<?= htmlspecialchars($user->sdt ?? '') ?>">
+            </div>
+
+            <div class="form-group">
+                <label>Địa chỉ giao hàng:</label>
+                <input type="text" name="dia_chi" value="<?= htmlspecialchars($user->dia_chi_giao_hang ?? '') ?>">
+            </div>
+
+            <button type="submit" class="btn btn-primary">💾 Cập nhật thông tin</button>
+        </form>
+
+        <div class="profile-footer">
+            <p><a href="change_password.php">🔒 Đổi mật khẩu</a> | 
+            <a href="orders.php">🧾 Xem đơn hàng</a></p>
+        </div>
+    </div>
+</div>
+
+<?php include_once '../includes/footer.php'; ?>
