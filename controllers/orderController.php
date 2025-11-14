@@ -1,55 +1,67 @@
 <?php
 session_start();
-require_once '../models/Order.php';
-require_once '../models/Book.php';
+// NẠP CÁC MODEL CẦN THIẾT
+require_once __DIR__ . '/../models/Order.php';
+require_once __DIR__ . '/../models/Cart.php'; // Nạp Cart Model
 
 $orderModel = new Order();
-$bookModel = new Book();
+$cartModel = new Cart(); // Khởi tạo Cart Model
 
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
 
-    /* 🧾 TẠO ĐƠN HÀNG (KHI NGƯỜI DÙNG ĐẶT HÀNG) */
-    case 'checkout':
+    /*TẠO ĐƠN HÀNG (ĐÃ SỬA LỖI) */
+    case 'create':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // Kiểm tra đăng nhập
             if (!isset($_SESSION['id_tk'])) {
                 header("Location: ../guest/login.php");
                 exit;
             }
 
-            // Lấy dữ liệu từ form thanh toán
-            $id_tk   = $_SESSION['id_tk'];
-            $dia_chi = trim($_POST['dia_chi']);
-            $id_pttt = $_POST['id_pttt'] ?? 1; // phương thức thanh toán (1 = COD, mặc định)
-
-            // Giỏ hàng
-            $cartItems = $_SESSION['cart'] ?? [];
-            if (empty($cartItems)) {
-                echo "<script>alert('Giỏ hàng trống!'); window.location.href='../user/cart.php';</script>";
+            $checkoutCart = $_SESSION['checkout_cart'] ?? [];
+            if (empty($checkoutCart)) {
+                echo "<script>alert('Giỏ hàng thanh toán trống!'); window.location.href='../user/cart.php';</script>";
                 exit;
             }
 
-            // Sinh mã đơn hàng
-            $id_don_hang = 'DH' . rand(100, 999);
+            $id_tk   = $_SESSION['id_tk'];
+            $dia_chi = trim($_POST['dia_chi']);
+            $id_pttt = $_POST['id_pttt'] ?? 'PT001';
+            $id_don_hang = 'DH' . time() . rand(10, 99);
 
-            // Tạo đơn hàng
-            $result = $orderModel->createOrder($id_don_hang, $id_tk, $dia_chi, $cartItems, $id_pttt);
+            // 5. Tạo đơn hàng
+            $result = $orderModel->createOrder($id_don_hang, $id_tk, $dia_chi, $checkoutCart, $id_pttt);
 
-            if ($result) {
-                // Xóa giỏ hàng
-                unset($_SESSION['cart']);
-                header("Location: ../user/orders.php?success=1");
+            // SỬA LẠI LOGIC KIỂM TRA KẾT QUẢ
+            if ($result['success']) {
+                // 6. Xóa sản phẩm đã mua khỏi GIỎ HÀNG CHÍNH
+                foreach ($checkoutCart as $id_sach => $item) {
+                    $cartModel->remove($id_sach); 
+                }
+                
+                // 7. Xóa giỏ hàng tạm
+                unset($_SESSION['checkout_cart']);
+                
+                // 8. Chuyển đến trang cảm ơn
+                header("Location: ../user/thankyou.php?id_don_hang=" . $id_don_hang);
+                exit;
+                
             } else {
-                echo "<script>alert('Đặt hàng thất bại!'); window.location.href='../user/cart.php';</script>";
+                // 9. HIỂN THỊ LỖI CHI TIẾT TỪ MODEL
+                $error_message = $result['message'] ?? 'Đặt hàng thất bại! Lỗi không xác định.';
+                // Làm sạch thông báo lỗi để hiển thị an toàn trong JavaScript
+                $safe_message = addslashes($error_message);
+                
+                echo "<script>alert('$safe_message'); window.location.href='../user/checkout.php';</script>";
+                exit;
             }
         }
         break;
 
-
-    /* ❌ HỦY ĐƠN HÀNG */
+    // ... (Các case 'cancel' và 'default' không đổi) ...
+    /*HỦY ĐƠN HÀNG */
     case 'cancel':
         if (isset($_GET['id_don_hang'])) {
             $id_don_hang = $_GET['id_don_hang'];
@@ -58,20 +70,7 @@ switch ($action) {
         }
         break;
 
-
-    /* 🔍 XEM CHI TIẾT ĐƠN HÀNG (nếu có giao diện riêng sau này) */
-    case 'detail':
-        if (isset($_GET['id_don_hang'])) {
-            $id_don_hang = $_GET['id_don_hang'];
-            $details = $orderModel->getOrderDetails($id_don_hang);
-            echo "<pre>";
-            print_r($details);
-            echo "</pre>";
-        }
-        break;
-
-
-    /* 🚪 Mặc định: Quay lại danh sách đơn hàng */
+    /* Mặc định: Quay lại danh sách đơn hàng */
     default:
         header("Location: ../user/orders.php");
         break;

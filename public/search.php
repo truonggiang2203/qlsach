@@ -1,58 +1,99 @@
 <?php
-include('../config/db.php');
-include('../includes/header.php');
 
-$where = [];
-if (!empty($_GET['keyword'])) {
-    $kw = mysqli_real_escape_string($conn, $_GET['keyword']);
-    $where[] = "ten_sach LIKE '%$kw%'";
-}
-if (!empty($_GET['category'])) {
-    $cat = mysqli_real_escape_string($conn, $_GET['category']);
-    $where[] = "id_loai = '$cat'";
-}
-if (!empty($_GET['min_price']) && !empty($_GET['max_price'])) {
-    $min = (int)$_GET['min_price'];
-    $max = (int)$_GET['max_price'];
-    $where[] = "gia_sach_ban BETWEEN $min AND $max";
-}
+require_once '../includes/header.php';
+require_once '../models/Book.php';
 
-$sql = "SELECT s.*, g.gia_sach_ban, l.ten_loai 
-        FROM sach s 
-        JOIN gia_sach g ON s.id_sach = g.id_sach
-        JOIN loai_sach l ON s.id_loai = l.id_loai
-        WHERE 1";
-if ($where) $sql .= " AND " . implode(' AND ', $where);
-$sql .= " ORDER BY g.gia_sach_ban ASC";
 
-$result = mysqli_query($conn, $sql);
+$bookModel = new Book();
+$categoryModel = new Category();
+
+
+$list_loai_sach = $categoryModel->getAllParentCategories();
+
+
+$keyword = $_GET['keyword'] ?? '';
+$id_loai = $_GET['category'] ?? ''; // Đổi tên 'category' thành 'id_loai' cho nhất quán
+$id_the_loai = $_GET['subcategory'] ?? '';
+$min_price = $_GET['min_price'] ?? '';
+$max_price = $_GET['max_price'] ?? '';
+
+// 5. GỌI HÀM TÌM KIẾM
+$books = $bookModel->searchBooksAdvanced($keyword, $id_loai, $id_the_loai, $min_price, $max_price);
 ?>
 
-<h2>Tìm kiếm nâng cao</h2>
-<form method="GET">
-    Từ khóa: <input type="text" name="keyword" value="<?= $_GET['keyword'] ?? '' ?>">
-    <br>Thể loại:
-    <select name="category">
-        <option value="">--Tất cả--</option>
-        <?php
-        $cats = mysqli_query($conn, "SELECT * FROM loai_sach");
-        while ($c = mysqli_fetch_assoc($cats))
-            echo "<option value='{$c['id_loai']}'" . 
-                 (($c['id_loai']==($_GET['category']??''))?'selected':'') . 
-                 ">{$c['ten_loai']}</option>";
-        ?>
-    </select>
-    <br>Giá từ: <input type="number" name="min_price"> đến <input type="number" name="max_price">
-    <br><button type="submit">Tìm</button>
-</form>
+<div class="main-container">
 
-<hr>
-<h3>Kết quả:</h3>
-<?php while ($r = mysqli_fetch_assoc($result)): ?>
-<div style="border:1px solid #ccc; margin:5px; padding:10px;">
-    <b><?= $r['ten_sach'] ?></b> - <?= number_format($r['gia_sach_ban']) ?> đ <br>
-    <small>Thể loại: <?= $r['ten_loai'] ?></small>
-</div>
-<?php endwhile; ?>
+    <aside class="sidebar">
+        <h3>🔍 Tìm kiếm nâng cao</h3>
+        
+        <form action="search.php" method="GET" class="checkout-form" style="margin:0; padding:10px 0; box-shadow:none;">
+            
+            <div class="form-group">
+                <label for="keyword">Từ khóa:</label>
+                <input type="text" id="keyword" name="keyword" value="<?= htmlspecialchars($keyword) ?>" placeholder="Tên sách...">
+            </div>
 
-<?php include('../includes/footer.php'); ?>
+            <div class="form-group">
+                <label for="category">Loại sách:</label>
+                <select name="category" id="category">
+                    <option value="">-- Tất cả loại sách --</option>
+                    <?php foreach ($list_loai_sach as $cat): ?>
+                        <option value="<?= $cat->id_loai ?>" <?= ($cat->id_loai == $id_loai) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($cat->ten_loai) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Khoảng giá:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" name="min_price" value="<?= htmlspecialchars($min_price) ?>" placeholder="Từ 0đ">
+                    <input type="number" name="max_price" value="<?= htmlspecialchars($max_price) ?>" placeholder="Đến...">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%;">Tìm kiếm</button>
+        </form>
+    </aside>
+
+    <main class="content-area">
+        <h2>Kết quả tìm kiếm (<?= count($books) ?>)</h2>
+
+        <div class="product-grid">
+            <?php if (empty($books)): ?>
+                <p>Không tìm thấy sản phẩm nào phù hợp với tiêu chí của bạn.</p>
+            <?php else: ?>
+                <?php foreach ($books as $book): 
+                    // Tính giá sau khi giảm
+                    $gia_goc = $book->gia_sach_ban;
+                    $phan_tram_km = $book->phan_tram_km;
+                    $gia_ban = $gia_goc * (1 - $phan_tram_km / 100);
+                ?>
+                    <div class="product-item">
+                        <a href="book_detail.php?id_sach=<?= $book->id_sach ?>">
+                            <img src="../uploads/images/<?= htmlspecialchars($book->ten_sach) ?>.jpg" alt="<?= htmlspecialchars($book->ten_sach) ?>">
+                        </a>
+                        <div class="product-info">
+                            <h4>
+                                <a href="book_detail.php?id_sach=<?= $book->id_sach ?>"><?= htmlspecialchars($book->ten_sach) ?></a>
+                            </h4>
+                            <div class="product-price">
+                                <?= number_format($gia_ban, 0, ',', '.') ?>đ
+                                <?php if ($phan_tram_km > 0): ?>
+                                    <span class="discount" style="background:var(--danger);"><?= $book->phan_tram_km ?>%</span>
+                                <?php endif; ?>
+                            </div>
+                            <small style="color:#777;"><?= htmlspecialchars($book->ten_loai) ?></small>
+                            <br>
+                            <a href="../controllers/cartController.php?action=add&id=<?= $book->id_sach ?>" class="btn">Thêm vào giỏ</a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div></main>
+
+</div><?php
+// 6. NẠP FOOTER
+require_once '../includes/footer.php';
+?>

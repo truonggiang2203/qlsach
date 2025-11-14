@@ -2,80 +2,110 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+// Nạp các Model cần thiết
+require_once __DIR__ . '/../models/Book.php';
+require_once __DIR__ . '/../models/Cart.php'; // NẠP MODEL CART MỚI
 
-require_once '../models/Book.php';
+// Khởi tạo các đối tượng Model
 $bookModel = new Book();
+$cartModel = new Cart(); // KHỞI TẠO CART MODEL
 
-$action = $_GET['action'] ?? '';
+$action = $_GET['action'] ?? 'view';
+$id_sach = $_REQUEST['id_sach'] ?? null; 
+$is_ajax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']); 
 
-// Đảm bảo $_SESSION['cart'] luôn là mảng
-if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];
-}
+// *** CHÚNG TA KHÔNG CẦN HÀM calculateCartTotals() ở đây nữa ***
+// *** Vì nó đã nằm trong Cart.php ***
 
+/* =====================================================
+ ĐIỀU HƯỚNG CHỨC NĂNG
+===================================================== */
 switch ($action) {
+    
     case 'add':
-        // Nhận dữ liệu từ POST hoặc GET
-        $id_sach = $_POST['id_sach'] ?? ($_GET['id_sach'] ?? '');
-        $so_luong = isset($_POST['so_luong']) ? (int)$_POST['so_luong'] : 1;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') break;
 
-        if (!$id_sach) {
-            header("Location: ../public/index.php");
+        $so_luong_post = (int)($_POST['so_luong'] ?? 1);
+        
+        if ($id_sach && $so_luong_post > 0) {
+            $book = $bookModel->getBookById($id_sach);
+            if ($book) {
+                // Chỉ cần gọi hàm add từ Model
+                $cartModel->add($book, $so_luong_post);
+            }
+        }
+        
+        $totalCount = $cartModel->getCount(); // Gọi hàm getCount từ Model
+
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'cartCount' => $totalCount]);
             exit;
         }
-
-        $book = $bookModel->getBookById($id_sach);
-        if (!$book) {
-            echo "Sách không tồn tại!";
-            exit;
-        }
-
-        // Nếu sách đã tồn tại → tăng số lượng
-        if (isset($_SESSION['cart'][$id_sach]) && is_array($_SESSION['cart'][$id_sach])) {
-            $_SESSION['cart'][$id_sach]['so_luong'] += $so_luong;
-        } else {
-            $_SESSION['cart'][$id_sach] = [
-                'id_sach'   => $book->id_sach,
-                'ten_sach'  => $book->ten_sach,
-                'gia'       => $book->gia_sach_ban,
-                'so_luong'  => $so_luong
-            ];
-        }
-
-        header("Location: ../user/cart.php");
+        header('Location: /qlsach/user/cart.php');
         exit;
 
     case 'update':
-        if (isset($_POST['quantities']) && is_array($_POST['quantities'])) {
-            foreach ($_POST['quantities'] as $id_sach => $so_luong) {
-                $so_luong = (int)$so_luong;
-                if ($so_luong <= 0) {
-                    unset($_SESSION['cart'][$id_sach]);
-                } else {
-                    if (isset($_SESSION['cart'][$id_sach])) {
-                        $_SESSION['cart'][$id_sach]['so_luong'] = $so_luong;
-                    }
-                }
-            }
+        $quantity = (int)($_REQUEST['quantity'] ?? 1);
+        
+        if ($id_sach && $quantity > 0) {
+            // Gọi hàm update từ Model
+            $cartModel->update($id_sach, $quantity);
         }
-        header("Location: ../user/cart.php");
+        
+        if ($is_ajax) {
+            $totalCount = $cartModel->getCount(); // Gọi Model
+            $totals = $cartModel->calculateTotals(); // Gọi Model
+            $itemSubtotal = $cartModel->getItemSubtotal($id_sach); // Gọi Model
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true, 
+                'cartCount' => $totalCount,
+                'itemSubtotal' => number_format($itemSubtotal) . ' đ',
+                'totals' => $totals
+            ]);
+            exit;
+        }
+        header('Location: /qlsach/user/cart.php');
         exit;
 
     case 'remove':
-        $id_sach = $_GET['id_sach'] ?? '';
-        if (isset($_SESSION['cart'][$id_sach])) {
-            unset($_SESSION['cart'][$id_sach]);
+        if ($id_sach) {
+            // Gọi hàm remove từ Model
+            $cartModel->remove($id_sach);
         }
-        header("Location: ../user/cart.php");
+
+        if ($is_ajax) {
+            $totalCount = $cartModel->getCount(); // Gọi Model
+            $totals = $cartModel->calculateTotals(); // Gọi Model
+            
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true, 
+                'cartCount' => $totalCount,
+                'totals' => $totals
+            ]);
+            exit;
+        }
+        header('Location: /qlsach/user/cart.php');
         exit;
 
     case 'clear':
-        unset($_SESSION['cart']);
-        $_SESSION['cart'] = [];
-        header("Location: ../user/cart.php");
+        // Gọi hàm clear từ Model
+        $cartModel->clear();
+        
+        if ($is_ajax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Giỏ hàng đã được làm trống.', 'cartCount' => 0]);
+            exit;
+        }
+        header('Location: /qlsach/user/cart.php');
         exit;
 
+    case 'view':
     default:
-        header("Location: ../public/index.php");
+        header('Location: /qlsach/user/cart.php');
         exit;
 }
+?>

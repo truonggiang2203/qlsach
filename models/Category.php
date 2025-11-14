@@ -8,18 +8,20 @@ class Category {
         $this->db = new Database();
     }
 
-    public function getAllCategories() {
-        $sql = "SELECT * FROM loai_sach";
+    // Đổi tên từ: getAllLoaiSach
+    public function getAllParentCategories() {
+        $sql = "SELECT * FROM loai_sach ORDER BY ten_loai ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getCategoryById($id_loai) {
-        $sql = "SELECT * FROM loai_sach WHERE id_loai = ?";
+    // Đổi tên từ: getAllTheLoai
+    public function getAllSubCategories() {
+        $sql = "SELECT * FROM the_loai ORDER BY ten_the_loai ASC";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$id_loai]);
-        return $stmt->fetch();
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 }
 ?>

@@ -2,101 +2,194 @@
 include_once '../includes/header.php';
 require_once '../models/Book.php';
 require_once '../models/Comment.php';
-require_once '../models/Category.php';
+// Category.php đã được nạp trong header
 
 $bookModel = new Book();
 $commentModel = new Comment();
-$categoryModel = new Category();
 
 $id_sach = $_GET['id_sach'] ?? '';
 
+// 1. KIỂM TRA VÀ LẤY DỮ LIỆU SÁCH
 if (!$id_sach) {
-    echo "<p>Không tìm thấy sách!</p>";
+    echo "<p class='container'>Không tìm thấy sách!</p>";
     include_once '../includes/footer.php';
     exit;
 }
-
 $book = $bookModel->getBookById($id_sach);
 if (!$book) {
-    echo "<p>Sách không tồn tại!</p>";
+    echo "<p class='container'>Sách không tồn tại!</p>";
     include_once '../includes/footer.php';
     exit;
 }
 
+// 2. LẤY DỮ LIỆU BÌNH LUẬN
 $comments = $commentModel->getCommentsByBook($id_sach);
 $avg_rating = $commentModel->getAverageRating($id_sach);
 ?>
 
-<div class="container" style="max-width: 1100px; margin-top: 30px;">
-    <div class="book-detail">
-        <div class="book-image">
-            <img src="https://via.placeholder.com/350x500?text=<?= urlencode($book->ten_sach) ?>" alt="<?= htmlspecialchars($book->ten_sach) ?>">
+<div class="container" style="margin-top: 30px; margin-bottom: 30px;">
+    <div class="product-detail-layout">
+
+        <div class="product-gallery">
+            <div class="product-main-image">
+                <img src="https://via.placeholder.com/500x500?text=<?= urlencode($book->ten_sach) ?>" 
+                     alt="<?= htmlspecialchars($book->ten_sach) ?>" 
+                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+            </div>
         </div>
 
-        <div class="book-info">
-            <h2><?= htmlspecialchars($book->ten_sach) ?></h2>
-            <p><b>Thể loại:</b> <?= htmlspecialchars($book->ten_loai ?? 'Chưa phân loại') ?></p>
-            <p><b>Nhà xuất bản:</b> <?= htmlspecialchars($book->ten_nxb ?? 'Không rõ') ?></p>
-            <p><b>Tác giả:</b> <?= htmlspecialchars($book->ten_tac_gia ?? 'Không rõ') ?></p>
-            <p><b>Mô tả:</b> <?= htmlspecialchars($book->mo_ta ?? 'Chưa có mô tả') ?></p>
-            <p><b>Điểm đánh giá:</b> ⭐ <?= $avg_rating ?>/5</p>
+        <div class="product-info-main">
+            <h1><?= htmlspecialchars($book->ten_sach) ?></h1>
 
-            <div class="price-box">
-                <span class="price">
-                    <?= number_format($book->gia_sach_ban, 0, ',', '.') ?>đ
-                </span>
-                <?php if ($book->phan_tram_km > 0): ?>
-                    <span class="discount">-<?= $book->phan_tram_km ?>%</span>
+            <div class="product-meta-info">
+                <p><b>Tác giả:</b> <?= htmlspecialchars($book->ten_tac_gia ?? 'Không rõ') ?></p>
+                <p><b>Nhà xuất bản:</b> <?= htmlspecialchars($book->ten_nxb ?? 'Không rõ') ?></p>
+                <p><b>Thể loại:</b> <?= htmlspecialchars($book->danh_sach_the_loai ?? 'Chưa phân loại') ?></p>
+                <p><b>Đánh giá:</b> ⭐ <?= number_format($avg_rating, 1) ?>/5</p>
+            </div>
+
+            <div class="product-detail-price-wrapper">
+                <?php if (isset($book->phan_tram_km) && $book->phan_tram_km > 0): ?>
+                    <?php 
+                    $discountedPrice = $book->gia_sach_ban * (1 - $book->phan_tram_km / 100);
+                    ?>
+                    <span class="product-detail-price-new">
+                        <?= number_format($discountedPrice); ?> đ
+                    </span>
+                    <span class="product-detail-price-old">
+                        <?= number_format($book->gia_sach_ban); ?> đ
+                    </span>
+                <?php else: ?>
+                    <span class="product-detail-price-new">
+                        <?= number_format($book->gia_sach_ban); ?> đ
+                    </span>
                 <?php endif; ?>
             </div>
 
-            <form action="../controllers/cartController.php?action=add&id_sach=<?= htmlspecialchars($book->id_sach) ?>" method="POST">
-                <label for="so_luong">Số lượng:</label>
-                <input type="number" id="so_luong" name="so_luong" value="1" min="1" style="width:60px;">
-                <button type="submit" class="btn">🛒 Thêm vào giỏ</button>
+            <p class="product-stock">
+                Tình trạng: <strong>Còn <?= (int)$book->so_luong_ton; ?> sản phẩm</strong>
+            </p>
+
+            <form class="add-to-cart-form" action="/qlsach/controllers/cartController.php?action=add" method="POST">
+                <input type="hidden" name="id_sach" value="<?= $book->id_sach; ?>">
+                
+                <div class="quantity-selector">
+                    <label for="so_luong">Số lượng:</label>
+                    <input type="number" id="so_luong" name="so_luong" value="1" min="1" max="<?= (int)$book->so_luong_ton; ?>">
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    🛒 Thêm vào giỏ hàng
+                </button>
             </form>
-        </div>
-    </div>
 
-    <hr>
-
-    <!-- Form bình luận -->
-    <div class="comment-section">
-        <h3>Đánh giá & Bình luận</h3>
-
-        <?php if (isset($_SESSION['id_tk'])): ?>
-        <form action="../controllers/commentController.php?action=add" method="POST" class="comment-form">
-            <input type="hidden" name="id_sach" value="<?= htmlspecialchars($book->id_sach) ?>">
-            <label>Chấm sao:</label>
-            <select name="so_sao">
-                <option value="5">5 ⭐</option>
-                <option value="4">4 ⭐</option>
-                <option value="3">3 ⭐</option>
-                <option value="2">2 ⭐</option>
-                <option value="1">1 ⭐</option>
-            </select>
-            <textarea name="binh_luan" placeholder="Nhập bình luận của bạn..." required></textarea>
-            <button type="submit" class="btn">Gửi bình luận</button>
-        </form>
-        <?php else: ?>
-            <p><a href="../guest/login.php">Đăng nhập</a> để bình luận.</p>
-        <?php endif; ?>
-
-        <!-- Danh sách bình luận -->
-        <div class="comment-list">
-            <?php if (!empty($comments)): ?>
-                <?php foreach ($comments as $c): ?>
-                    <div class="comment-item">
-                        <b><?= htmlspecialchars($c->ho_ten ?? 'Người dùng ẩn') ?></b> 
-                        <span> - <?= $c->so_sao ?> ⭐</span>
-                        <p><?= htmlspecialchars($c->binh_luan) ?></p>
+            <div class="product-accordion">
+                
+                <div class="accordion-item active"> <div class="accordion-header">
+                        <h3>Mô tả sản phẩm</h3>
+                        <button type="button" class="accordion-toggle">−</button> 
                     </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>Chưa có bình luận nào.</p>
-            <?php endif; ?>
+                    <div class="accordion-content" style="max-height: 500px;"> 
+                        <p>
+                            <?= nl2br(htmlspecialchars($book->mo_ta)); ?>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>Đánh giá & Bình luận (<?= count($comments) ?>)</h3>
+                        <button type="button" class="accordion-toggle">+</button> 
+                    </div>
+                    <div class="accordion-content">
+                        <div class="comment-section-inner">
+                            <?php if (isset($_SESSION['id_tk'])): ?>
+                            <form action="/qlsach/controllers/commentController.php?action=add" method="POST" class="comment-form">
+                                <input type="hidden" name="id_sach" value="<?= htmlspecialchars($book->id_sach) ?>">
+                                <label>Chấm sao:</label>
+                                <select name="so_sao">
+                                    <option value="5">5 ⭐</option>
+                                    <option value="4">4 ⭐</option>
+                                    <option value="3">3 ⭐</option>
+                                    <option value="2">2 ⭐</option>
+                                    <option value="1">1 ⭐</option>
+                                </select>
+                                <textarea name="binh_luan" placeholder="Nhập bình luận của bạn..." required></textarea>
+                                <button type="submit" class="btn-primary">Gửi bình luận</button>
+                            </form>
+                            <?php else: ?>
+                                <p><a href="/qlsach/guest/login.php">Đăng nhập</a> để bình luận.</p>
+                            <?php endif; ?>
+
+                            <div class="comment-list">
+                                <?php if (!empty($comments)): ?>
+                                    <?php foreach ($comments as $c): ?>
+                                    <div class="comment-item">
+                                        <b><?= htmlspecialchars($c->ho_ten ?? 'Người dùng ẩn') ?></b> 
+                                        <span> - <?= $c->so_sao ?> ⭐</span>
+                                        <p><?= htmlspecialchars($c->binh_luan) ?></p>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p>Chưa có bình luận nào.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>CHÍNH SÁCH BÁN HÀNG</h3>
+                        <button type="button" class="accordion-toggle">+</button> 
+                    </div>
+                    <div class="accordion-content">
+                        <p><strong>Cam kết Sách thật:</strong> 100% sách bán ra là sách thật, có bản quyền, nhập trực tiếp từ NXB và các đối tác uy tín.</p>
+                        <p><strong>Miễn phí vận chuyển</strong> đối với đơn hàng trên 300,000VND. Phí giao hàng tiêu chuẩn: 25,000VND.</p>
+                        <p><strong>Hotline hỗ trợ:</strong> 1900 1009 - <strong>Email:</strong> support@qlsach.com</p>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
 
-<?php include_once '../includes/footer.php'; ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const accordionItems = document.querySelectorAll(".accordion-item");
+
+    accordionItems.forEach(item => {
+        const header = item.querySelector(".accordion-header");
+        const toggle = item.querySelector(".accordion-toggle");
+        const content = item.querySelector(".accordion-content");
+
+        header.addEventListener("click", () => {
+            // Đóng tất cả các item khác
+            accordionItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                    otherItem.querySelector(".accordion-content").style.maxHeight = "0";
+                    otherItem.querySelector(".accordion-toggle").textContent = "+";
+                }
+            });
+
+            // Mở hoặc đóng item hiện tại
+            if (item.classList.contains('active')) {
+                item.classList.remove('active');
+                content.style.maxHeight = "0";
+                toggle.textContent = "+";
+            } else {
+                item.classList.add('active');
+                // Cần set max-height bằng chiều cao thật của content
+                content.style.maxHeight = content.scrollHeight + "px";
+                toggle.textContent = "−"; // Ký tự trừ (khác với dấu gạch ngang)
+            }
+        });
+    });
+});
+</script>
+
+<?php 
+include_once '../includes/footer.php'; 
+?>

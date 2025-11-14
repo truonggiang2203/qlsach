@@ -7,7 +7,7 @@ $bookModel = new Book();
 $categoryModel = new Category();
 
 $books = $bookModel->getAllBooks();
-$categories = $categoryModel->getAllCategories();
+$categories = $categoryModel->getAllParentCategories();
 ?>
 
 <div class="main-container">

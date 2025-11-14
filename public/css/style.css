@@ -1,15 +1,33 @@
+
 /* =========================================================
  🎨 1. BIẾN CHUNG
 ========================================================= */
 :root {
-    --primary: #007bff;
-    --primary-dark: #0056b3;
-    --danger: #dc3545;
-    --light-bg: #f5f8ff;
+    /* Màu chủ đạo (Xanh Navy đậm) */
+    --primary: #5DA2D5;
+    /* Màu hover (Đậm hơn một chút) */
+    --primary-dark: #4b8cc4;
+
+    /* Màu nhấn (Đỏ tía - dùng cho giá, cảnh báo) */
+    --danger: #F78888;
+
+    --accent: #F3D250;
+
+    /* Màu nền (Trắng kem pastel) */
+    --light-bg: #ECECEC;
+
+    /* Màu nền phụ (Hồng đào pastel - có thể dùng cho header/footer) */
+    --secondary-bg: #90CCF4;
+
+    /* Màu chữ và border (Xám oải hương) */
     --text: #333;
-    --border: #ddd;
+    --border: #DCDCDC;
+    
+    /* Nền thẻ/card (Giữ màu trắng) */
     --white: #fff;
-    --shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+    /* Đổ bóng (Dựa trên màu xanh navy) */
+    --shadow: 0 4px 12px rgba(93, 162, 213, 0.15);
 }
 
 /* =========================================================
@@ -39,6 +57,18 @@ img {
 }
 
 /* =========================================================
+ 🎨 2. CSS TIỆN ÍCH (Utility)
+========================================================= */
+/* Icon chung (dùng ở Header và Nav) */
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle; /* Canh icon với chữ */
+    margin-right: 5px;
+    display: inline-block; /* Đảm bảo căn chỉnh đúng */
+}
+
+/* =========================================================
  🧭 3. HEADER & NAV
 ========================================================= */
 .main-header {
@@ -52,7 +82,7 @@ img {
     box-shadow: var(--shadow);
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 60;
 }
 
 .main-header .logo {
@@ -73,38 +103,154 @@ img {
     font-size: 16px;
 }
 
+/* === SỬA LỖI CANH CHỈNH ICON & CHỮ === */
 .main-header .user-actions a {
     margin-left: 20px;
     font-size: 16px;
     color: var(--text);
+    /* Thêm 2 dòng này để canh icon và chữ cho đẹp */
+    display: inline-flex;
+    align-items: center;
 }
+
+/* Style riêng cho link giỏ hàng */
+.main-header .user-actions a[href*="cart.php"] {
+    background-color: var(--light-bg);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: var(--primary);
+    transition: all 0.2s ease;
+}
+.main-header .user-actions a[href*="cart.php"]:hover {
+    background-color: #e4d7d1;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+}
+
 .main-header .user-actions .btn-logout {
     color: var(--danger);
     font-weight: 600;
 }
 
+/* =========================================================
+ 🗺️ 4. THANH NAV & MEGA MENU
+========================================================= */
 .category-nav {
     background: var(--primary);
     box-shadow: var(--shadow);
     width: 100%;
+    z-index: 59; /* Dưới header */
+    position: relative; /* Thêm để z-index hoạt động */
 }
+
+/* === SỬA LỖI XUNG ĐỘT (LỖI CHÍNH) === */
 .category-nav ul {
     list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    padding: 10px 40px;
     margin: 0;
+    padding: 10px 40px;
+    
+    /* Dùng Flexbox để xếp các mục nav (Home, Category, Sách Mới) */
+    display: flex;
+    flex-wrap: nowrap; /* Không cho rớt hàng */
+    align-items: center;
+    
+    /* Cần cho Mega Menu con */
+    position: relative; 
 }
+
+/* Định dạng các mục nav CẤP 1 */
 .category-nav ul li a {
     color: var(--white);
     padding: 10px 15px;
     font-weight: bold;
-    text-transform: uppercase;
+    text-transform: capitalize;
     transition: 0.2s;
+    /* Thêm để canh icon (nếu có) */
+    display: flex;
+    align-items: center;
 }
 .category-nav ul li a:hover {
     background: var(--primary-dark);
     border-radius: 5px;
+    text-decoration: none;
+}
+
+/* Ghi đè cho icon Home (không có chữ) */
+.category-nav li:first-child a {
+    padding: 10px 12px; 
+}
+.category-nav li:first-child .nav-icon {
+    margin-right: 0;
+}
+
+/* Cấu trúc Dropdown */
+.category-nav li.dropdown-trigger {
+    position: relative; /* Quan trọng: để .dropdown-content định vị theo */
+}
+
+/* Khung chứa Mega Menu (Mặc định ẩn) */
+.dropdown-content {
+    position: absolute;
+    top: 100%; /* Hiện ngay bên dưới thanh nav */
+    left: 0;
+    background: #d4e9ff;;
+    box-shadow: var(--shadow);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    z-index: 100;
+    padding: 5px 10px;
+    
+    /* Sắp xếp các cột theo hàng ngang */
+    display: none; /* Ẩn đi */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    border: 1px solid var(--border);
+    border-top: none;
+}
+
+/* Hiển thị khi hover */
+.category-nav li.dropdown-trigger:hover .dropdown-content {
+    display: flex; 
+}
+
+/* Cột trong Mega Menu */
+.dropdown-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 180px;
+}
+
+/* Tiêu đề Cột (Sách Văn Học, Sách Kinh Tế...) */
+.dropdown-column .dropdown-header {
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    background: none; 
+    text-transform: capitalize;
+}
+.dropdown-column .dropdown-header:hover {
+    background: none;
+    color: var(--danger); 
+}
+
+/* Link Thể loại con (Tiểu thuyết, Marketing...) */
+.category-nav .dropdown-column a {
+    color: black;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: none; 
+    font-weight: normal; 
+    text-transform: capitalize;
+}
+.category-nav .dropdown-column a:hover {
+    background: none;
+    color: var(--danger); 
 }
 
 /* =========================================================
@@ -246,7 +392,7 @@ img {
 .cart-table th {
     background: var(--primary);
     color: #fff;
-    text-transform: uppercase;
+    text-transform: capitalize;
 }
 .cart-table input[type="number"] {
     width: 60px;
@@ -467,4 +613,740 @@ img {
 }
 .profile-footer a:hover {
     text-decoration: underline;
+}
+
+/* =========================================================
+ 🔐 11. TRANG ĐĂNG NHẬP / ĐĂNG KÝ
+========================================================= */
+
+/* Dùng class này trên thẻ <body> để canh giữa form */
+body.form-page-bg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--light-bg); /* Dùng màu nền nhạt */
+}
+
+.form-container {
+    background: var(--white);
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.form-container h2 {
+    color: var(--primary-dark);
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+.form-container .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-container label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.form-container input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-container input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 5px rgba(160, 196, 255, 0.5);
+}
+
+/* Định nghĩa lại nút .btn cho form này */
+.form-container .btn {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--white);
+    background: var(--primary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.form-container .btn:hover {
+    background: var(--primary-dark);
+    text-decoration: none; /* Bỏ gạch chân khi hover */
+}
+
+.form-container p {
+    margin-top: 20px;
+    font-size: 15px;
+    color: #666;
+}
+
+/* =========================================================
+ ↩️ 12. NÚT TRỞ VỀ TRANG CHỦ (TRANG LOGIN/REGISTER)
+========================================================= */
+.home-link {
+    /* Đặt vị trí ở góc trên bên trái */
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    
+    /* Hiển thị icon và chữ */
+    display: flex;
+    align-items: center;
+    
+    /* Thiết kế giao diện */
+    padding: 8px 14px;
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    color: var(--primary); /* Dùng màu xanh navy #123C69 */
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.home-link:hover {
+    box-shadow: var(--shadow); /* Dùng shadow #123C69 */
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.home-link img {
+    width: 20px; /* Kích thước icon */
+    height: 20px;
+    margin-right: 8px; /* Khoảng cách giữa icon và chữ */
+}
+
+/* =========================================================
+ 📖 13. TRANG CHI TIẾT SÁCH (BOOK_DETAIL.PHP)
+========================================================= */
+
+/* === BỐ CỤC CHÍNH === */
+.book-detail {
+    display: flex;
+    flex-wrap: wrap; /* Cho phép rớt hàng trên di động */
+    gap: 40px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+/* === PHẦN HÌNH ẢNH (TRÁI) === */
+.book-image {
+    flex: 1;
+    min-width: 300px; /* Chiều rộng tối thiểu cho ảnh */
+    max-width: 350px; /* Chiều rộng tối đa */
+    margin: 0 auto; /* Tự căn giữa nếu rớt hàng */
+}
+.book-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+/* === PHẦN THÔNG TIN (PHẢI) === */
+.book-info {
+    flex: 2; /* Gấp đôi hình ảnh */
+    min-width: 300px; /* Rộng tối thiểu 300px */
+}
+.book-info h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary); /* Màu xanh navy */
+    margin-bottom: 15px;
+}
+.book-info p {
+    font-size: 16px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+.book-info p b {
+    color: #444; /* Màu chữ đậm cho tiêu đề (Tác giả, NXB...) */
+    margin-right: 5px;
+}
+
+/* === KHỐI GIÁ BÁN === */
+.price-box {
+    margin: 25px 0;
+    padding: 20px;
+    background: var(--light-bg); /* Nền trắng kem #EEE2DC */
+    border-radius: 6px;
+    border-left: 4px solid var(--danger); /* Đường viền đỏ tía */
+}
+.price-box .price {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--danger); /* Màu đỏ tía */
+}
+/* Style cho % giảm giá (khác với style ở product-grid) */
+.price-box .discount {
+    background: var(--danger);
+    color: var(--white);
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* === FORM THÊM VÀO GIỎ HÀNG === */
+.book-info form {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.book-info form label {
+    font-weight: 600;
+    font-size: 16px;
+}
+/* Style cho input số lượng */
+.book-info form input[type="number"] {
+    width: 70px !important; /* Ghi đè style inline */
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 16px;
+}
+/* Style nút .btn (đã có) */
+.book-info .btn {
+    padding: 10px 18px;
+    font-size: 16px;
+}
+
+
+/* === ĐƯỜNG KẺ NGĂN CÁCH === */
+hr {
+    border: 0;
+    border-top: 2px dashed var(--border);
+    margin: 40px 0;
+}
+
+/* =========================================================
+ 💬 14. PHẦN BÌNH LUẬN (BOOK_DETAIL.PHP)
+========================================================= */
+.comment-section h3 {
+    font-size: 24px;
+    color: var(--primary);
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+/* === FORM VIẾT BÌNH LUẬN === */
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+    background: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+/* Style chung cho textarea và select */
+.comment-form textarea,
+.comment-form select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 15px;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+.comment-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+.comment-form .btn {
+    align-self: flex-start; /* Nút không chiếm 100% */
+}
+
+/* === DANH SÁCH BÌNH LUẬN ĐÃ CÓ === */
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.comment-item {
+    background: var(--white);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-left: 4px solid var(--primary); /* Viền xanh navy */
+}
+.comment-item b {
+    font-size: 16px;
+    color: var(--primary-dark);
+}
+.comment-item span {
+    font-size: 15px;
+    font-weight: bold;
+    color: #f39c12; /* Màu vàng của sao */
+}
+.comment-item p {
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* ========================================= */
+/* 13. TRANG CHI TIẾT SẢN PHẨM (book_detail.php) */
+/* ========================================= */
+
+.product-detail-layout {
+    display: grid;
+    /* Chia 2 cột, cột ảnh 40%, cột chữ 60% */
+    grid-template-columns: 4fr 6fr; 
+    gap: 40px;
+    padding: 20px 0;
+}
+
+.product-gallery .product-main-image {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Giữ ảnh vuông */
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: sticky; /* Dính lại khi cuộn */
+    top: 100px; /* Dính dưới header */
+}
+
+.product-info-main h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 15px;
+    color: var(--primary);
+}
+
+/* Thêm: Khối thông tin meta (tác giả, nxb) */
+.product-meta-info {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--border);
+}
+.product-meta-info p {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #333;
+}
+.product-meta-info p b {
+    color: #000;
+    width: 100px;
+    display: inline-block;
+}
+
+.product-detail-price-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.product-detail-price-new {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--danger); /* Dùng màu đỏ tía của bạn */
+}
+.product-detail-price-old {
+    font-size: 1.2rem;
+    color: #666;
+    text-decoration: line-through;
+}
+
+.product-stock {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 25px;
+}
+.product-stock strong {
+    color: var(--primary);
+}
+
+/* Form Thêm giỏ hàng */
+.add-to-cart-form {
+    background-color: var(--light-bg); /* Dùng màu nền kem */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;    
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.quantity-selector label {
+    font-weight: 600;
+}
+.quantity-selector input[type="number"] {
+    width: 80px;
+    padding: 15px 10px; 
+    font-size: 1.1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+}
+
+/* Đổi nút đỏ thành nút xanh (Primary) */
+.add-to-cart-form .btn-primary {
+    width: 100%;
+    flex-grow: 1; /* Tự co giãn */
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Accordion (Menu xếp) */
+.product-accordion {
+    margin-top: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.accordion-item {
+    border-bottom: 1px solid var(--border);
+}
+.accordion-item:last-child {
+    border-bottom: none;
+}
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer;
+    background-color: var(--light-bg);
+}
+.accordion-header:hover {
+    background-color: #e4d7d1; /* Màu hover đậm hơn */
+}
+.accordion-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    color: var(--primary);
+}
+.accordion-toggle {
+    font-size: 2rem;
+    font-weight: 300;
+    border: none;
+    background: none;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+/* Nội dung bên trong Accordion */
+.accordion-content {
+    max-height: 0; /* Mặc định ẩn */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: var(--white);
+}
+/* Style cho phần chữ mô tả, chính sách */
+.accordion-content p {
+    color: var(--text);
+    line-height: 1.7;
+    padding: 15px 20px;
+    margin: 0;
+    border-top: 1px dashed var(--border);
+}
+.accordion-content p:first-child {
+    border-top: none;
+}
+.accordion-content p strong {
+    color: var(--primary);
+}
+
+/* Style cho phần bình luận (BÊN TRONG ACCORDION) */
+.comment-section-inner {
+    padding: 20px;
+}
+.comment-section-inner .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.comment-section-inner .comment-form textarea,
+.comment-section-inner .comment-form select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+}
+.comment-section-inner .comment-form .btn-primary {
+    align-self: flex-start; /* Nút không chiếm 100% */
+}
+.comment-section-inner .comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.comment-section-inner .comment-item {
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: 5px;
+    background: var(--light-bg);
+}
+.comment-section-inner .comment-item b {
+    color: var(--primary-dark);
+}
+.comment-section-inner .comment-item span {
+    color: #f39c12;
+    font-weight: bold;
+}
+.comment-section-inner .comment-item p {
+    margin-top: 5px;
+    border-top: none;
+    padding: 0;
+}
+
+/* ========================================= */
+/* 15. TRANG GIỎ HÀNG (cart.php)             */
+/* ========================================= */
+
+.cart-page-container {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+.cart-page-container h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: center;
+    color: var(--primary); /* Dùng màu theme */
+}
+.cart-empty-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666; /* Dùng màu theme */
+    padding: 40px 0;
+}
+.cart-empty-message a {
+    color: var(--primary); /* Dùng màu theme */
+    font-weight: 600;
+}
+
+/* --- Bố cục --- */
+.cart-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.cart-items-list {
+    border: 1px solid var(--border); /* Dùng màu theme */
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--white); /* Nền trắng */
+}
+
+/* --- Bảng sản phẩm --- */
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.cart-table thead {
+    background-color: var(--light-bg); /* Dùng màu theme */
+    border-bottom: 1px solid var(--border);
+}
+.cart-table th {
+    padding: 15px 10px;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #555;
+    text-transform: uppercase;
+}
+.cart-table th:nth-child(4),
+.cart-table th:nth-child(5),
+.cart-table th:nth-child(6),
+.cart-table th:nth-child(7) {
+    text-align: center;
+}
+.cart-table tbody tr {
+    border-bottom: 1px solid var(--border);
+}
+.cart-table tbody tr:last-child {
+    border-bottom: none;
+}
+.cart-table td {
+    padding: 15px 10px;
+    vertical-align: middle;
+}
+
+/* --- Chi tiết item trong bảng --- */
+.cart-item-image {
+    width: 80px;
+}
+.cart-item-image img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.cart-item-name a {
+    font-weight: 600;
+    color: var(--text);
+}
+.cart-item-name a:hover {
+    color: var(--primary);
+}
+
+.cart-item-price,
+.cart-item-quantity {
+    text-align: center;
+    font-weight: 600;
+}
+.cart-item-subtotal {
+    text-align: center;
+}
+.cart-item-price .product-price-original,
+.cart-item-subtotal .product-price-original {
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: line-through;
+    display: block;
+}
+.cart-item-price .product-price-discounted,
+.cart-item-subtotal .product-price-discounted {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--danger); /* Dùng màu theme */
+    display: block;
+}
+.cart-item-subtotal .product-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+}
+
+.cart-item-remove {
+    text-align: center;
+}
+.btn-remove-item {
+    display: inline-block;
+    background-color: var(--danger); /* Dùng màu theme */
+    color: var(--white);
+    border-radius: 5px;
+    width: auto;
+    height: auto;
+    padding: 5px 10px;
+    line-height: normal;
+    text-align: center;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+}
+.btn-remove-item:hover {
+    background-color: #c82333;
+    color: var(--white);
+    text-decoration: none;
+}
+.cart-item-remove .btn-remove-item {
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    padding: 0;
+}
+
+/* --- Khung Tóm Tắt (Summary) --- */
+.cart-summary {
+    background-color: var(--white); /* Nền trắng */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 25px;
+    height: fit-content; /* Dính theo nội dung */
+    position: sticky;
+    top: 100px; /* Dính dưới header */
+}
+.cart-summary h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+}
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+.summary-price {
+    font-weight: 600;
+}
+.total-row {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+.total-price {
+    color: var(--danger); /* Dùng màu theme */
+}
+
+/* Nút Checkout */
+.btn-checkout {
+    display: block;
+    width: 100%;
+    background-color: var(--primary); /* Dùng màu theme */
+    color: var(--white);
+    text-align: center;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+}
+.btn-checkout:hover {
+    background-color: var(--primary-dark); /* Dùng màu theme */
+    color: var(--white);
+    text-decoration: none;
+}
+.btn-checkout:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- CHECKBOX --- */
+.cart-checkbox-cell {
+    width: 30px;
+    text-align: center;
+    padding-left: 15px !important;
+    padding-right: 0 !important;
+}
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
