@@ -75,6 +75,16 @@ class User {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
+        /* =====================================================
+    🔍 KIỂM TRA ID TÀI KHOẢN TỒN TẠI (Dùng cho đăng ký)
+    ===================================================== */
+    public function findUserByAccountId($id_tk) {
+        $sql = "SELECT id_tk FROM tai_khoan WHERE id_tk = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_tk]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
 
     /* =====================================================
        🧾 CẬP NHẬT THÔNG TIN USER

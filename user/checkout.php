@@ -1,82 +1,71 @@
 <?php
-session_start();
-require_once '../models/Database.php';
+require_once __DIR__ . '/../models/Cart.php';
+require_once __DIR__ . '/../includes/header.php'; // Đã bao gồm session_start()
 
+// 1. KIỂM TRA ĐĂNG NHẬP
 if (!isset($_SESSION['id_tk'])) {
     header("Location: ../guest/login.php");
     exit;
 }
 
-$db = new Database();
-$cart = $_SESSION['cart'] ?? [];
+$cartModel = new Cart();
+$fullCart = $cartModel->getItems(); // Lấy giỏ hàng đầy đủ
 
-if (empty($cart)) {
-    echo "<script>alert('Giỏ hàng trống!'); window.location.href='cart.php';</script>";
+// 2. LOGIC LỌC SẢN PHẨM ĐÃ CHỌN TỪ GIỎ HÀNG
+// Chỉ lọc khi người dùng POST từ cart.php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
+    $selected_ids = $_POST['selected_items'];
+    $checkoutCart = [];
+
+    if (empty($selected_ids)) {
+        echo "<script>alert('Bạn chưa chọn sản phẩm nào để thanh toán!'); window.location.href='cart.php';</script>";
+        exit;
+    }
+
+    foreach ($selected_ids as $id_sach) {
+        if (isset($fullCart[$id_sach])) {
+            $checkoutCart[$id_sach] = $fullCart[$id_sach];
+        }
+    }
+    // Lưu giỏ hàng đã lọc vào session tạm
+    $_SESSION['checkout_cart'] = $checkoutCart;
+
+} 
+// Nếu người dùng F5 lại trang checkout, đọc từ session tạm
+else if (isset($_SESSION['checkout_cart'])) {
+    $checkoutCart = $_SESSION['checkout_cart'];
+} 
+// Nếu không có gì, quay về giỏ hàng
+else {
+    echo "<script>alert('Giỏ hàng trống hoặc phiên đã hết hạn!'); window.location.href='cart.php';</script>";
     exit;
 }
 
-$total = 0;
-foreach ($cart as $item) {
-    $total += $item['gia'] * $item['so_luong'];
+if (empty($checkoutCart)) {
+    echo "<script>alert('Giỏ hàng thanh toán của bạn bị trống!'); window.location.href='cart.php';</script>";
+    exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_don_hang = 'DH' . rand(100, 999);
-    $id_tk = $_SESSION['id_tk'];
-    $dia_chi = trim($_POST['dia_chi']);
-    $id_pttt = $_POST['id_pttt']; // PT001, PT002, ...
-
-    if (empty($dia_chi)) {
-        echo "<script>alert('Vui lòng nhập địa chỉ nhận hàng!');</script>";
-    } else {
-        try {
-            $db->prepare("START TRANSACTION")->execute();
-
-            // 1️⃣ Thêm đơn hàng
-            $sql1 = "INSERT INTO don_hang (id_don_hang, id_tk, id_trang_thai, ngay_gio_tao_don, dia_chi_nhan_hang)
-                     VALUES (?, ?, 1, NOW(), ?)";
-            $stmt1 = $db->prepare($sql1);
-            $stmt1->execute([$id_don_hang, $id_tk, $dia_chi]);
-
-            // 2️⃣ Thêm chi tiết đơn hàng
-            $sql2 = "INSERT INTO chi_tiet_don_hang (id_don_hang, id_sach, so_luong_ban) VALUES (?, ?, ?)";
-            $stmt2 = $db->prepare($sql2);
-            foreach ($cart as $sp) {
-                $stmt2->execute([$id_don_hang, $sp['id_sach'], $sp['so_luong']]);
-            }
-
-            // 3️⃣ Thêm thông tin thanh toán (mặc định: chưa thanh toán)
-            $sql3 = "INSERT INTO thanh_toan (id_pttt, id_don_hang, trang_thai_tt, ngay_gio_thanh_toan)
-                     VALUES (?, ?, 0, NOW())";
-            $stmt3 = $db->prepare($sql3);
-            $stmt3->execute([$id_pttt, $id_don_hang]);
-
-            // Commit giao dịch
-            $db->prepare("COMMIT")->execute();
-
-            // Xóa giỏ hàng sau khi thanh toán
-            unset($_SESSION['cart']);
-
-            header("Location: thankyou.php?id_don_hang=$id_don_hang");
-            exit;
-        } catch (PDOException $e) {
-            $db->prepare("ROLLBACK")->execute();
-            echo "Lỗi đặt hàng: " . $e->getMessage();
-        }
-    }
+// 3. TÍNH TỔNG TIỀN (DÙNG KEY TIẾNG ANH)
+$total = 0;
+$totalDiscount = 0;
+foreach ($checkoutCart as $item) {
+    $price = $item['price'];
+    $quantity = $item['quantity'];
+    $discount_percent = $item['discount_percent'] ?? 0;
+    
+    $total += ($price * (1 - $discount_percent / 100)) * $quantity;
 }
 ?>
 
-<?php include_once '../includes/header.php'; ?>
-
 <div class="container">
-    <h2>🧾 Xác nhận đơn hàng</h2>
+    <h2>Xác nhận đơn hàng</h2>
 
-    <form method="POST" class="checkout-form">
+    <form method="POST" action="../controllers/orderController.php?action=create" class="checkout-form">
         <h3>Thông tin giao hàng</h3>
         <div class="form-group">
             <label>Họ tên:</label>
-            <input type="text" value="<?= htmlspecialchars($_SESSION['ho_ten']) ?>" disabled>
+            <input type="text" value="<?= htmlspecialchars($_SESSION['ho_ten'] ?? 'Chưa cập nhật') ?>" disabled>
         </div>
         <div class="form-group">
             <label>Địa chỉ nhận hàng:</label>
@@ -92,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
         </div>
 
-        <h3>Đơn hàng của bạn</h3>
+        <h3>Đơn hàng của bạn (Chỉ sản phẩm đã chọn)</h3>
         <table class="cart-table">
             <thead>
                 <tr>
@@ -103,12 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($cart as $sp): ?>
+                <?php foreach ($checkoutCart as $sp): 
+                    $discountedPrice = $sp['price'] * (1 - $sp['discount_percent'] / 100);
+                    $subtotal = $discountedPrice * $sp['quantity'];
+                ?>
                     <tr>
-                        <td><?= htmlspecialchars($sp['ten_sach']) ?></td>
-                        <td><?= number_format($sp['gia'], 0, ',', '.') ?>đ</td>
-                        <td><?= $sp['so_luong'] ?></td>
-                        <td><?= number_format($sp['gia'] * $sp['so_luong'], 0, ',', '.') ?>đ</td>
+                        <td><?= htmlspecialchars($sp['name']) ?></td> <td><?= number_format($discountedPrice, 0, ',', '.') ?>đ</td> <td><?= $sp['quantity'] ?></td> <td><?= number_format($subtotal, 0, ',', '.') ?>đ</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -118,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h3>Tổng cộng: <span><?= number_format($total, 0, ',', '.') ?>đ</span></h3>
         </div>
 
-        <button type="submit" class="btn">✅ Xác nhận đặt hàng</button>
+        <button type="submit" class="btn">Xác nhận đặt hàng</button>
         <a href="cart.php" class="btn btn-secondary">⬅ Quay lại giỏ hàng</a>
     </form>
 </div>

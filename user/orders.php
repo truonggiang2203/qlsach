@@ -73,7 +73,7 @@ $orders = $orderModel->getOrdersByUser($_SESSION['id_tk']);
                             <?php foreach ($details as $d): ?>
                                 • <?= htmlspecialchars($d->ten_sach) ?> 
                                 (x<?= $d->so_luong_ban ?>) 
-                                – <?= number_format($d->gia_sach_ban, 0, ',', '.') ?>đ<br>
+                                – <?= number_format($d->don_gia_ban, 0, ',', '.') ?>đ<br>
                             <?php endforeach; ?>
                         </td>
                     </tr>
