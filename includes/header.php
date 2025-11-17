@@ -55,6 +55,7 @@ $cartCount = $_SESSION['cartCount'] ?? 0;
 
             <a href="/qlsach/user/profile.php">Tài khoản</a>
             <a href="/qlsach/user/orders.php">Đơn hàng</a>
+            <a href="/qlsach/user/wishlist.php">Yêu thích</a>
 
             <?php if (!empty($_SESSION['phan_quyen']) && $_SESSION['phan_quyen'] === 'admin'): ?>
                 <a href="/qlsach/admin/dashboard.php">Quản trị</a>

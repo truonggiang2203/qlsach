@@ -380,8 +380,6 @@ document.addEventListener("click", function(e) {
         .catch(err => console.error(err));
     }
 });
-
-
 </script>
 
 
