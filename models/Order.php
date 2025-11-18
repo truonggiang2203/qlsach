@@ -76,14 +76,20 @@ class Order {
     }
 
     /**
-     * 📦 Lấy danh sách đơn hàng của người dùng
+     * 📦 Lấy danh sách đơn hàng của người dùng (có phương thức thanh toán)
      */
     public function getOrdersByUser($id_tk) {
         $sql = "SELECT 
                     dh.*, 
                     tt.trang_thai_dh,
                     COALESCE(SUM(ct.so_luong_ban * ct.don_gia_ban), 0) AS tong_tien,
-                    MAX(tto.trang_thai_tt) AS trang_thai_tt
+                    MAX(tto.trang_thai_tt) AS trang_thai_tt,
+                    (SELECT pttt.ten_pttt 
+                     FROM thanh_toan tto2 
+                     JOIN phuong_thuc_thanh_toan pttt ON tto2.id_pttt = pttt.id_pttt
+                     WHERE tto2.id_don_hang = dh.id_don_hang 
+                     LIMIT 1) AS ten_pttt,
+                    COUNT(DISTINCT ct.id_sach) AS so_san_pham
                 FROM don_hang dh
                 JOIN trang_thai_don_hang tt ON dh.id_trang_thai = tt.id_trang_thai
                 LEFT JOIN chi_tiet_don_hang ct ON dh.id_don_hang = ct.id_don_hang
@@ -97,15 +103,90 @@ class Order {
     }
 
     /**
-     *Lấy chi tiết từng đơn hàng
+     *Lấy chi tiết từng đơn hàng (có hình ảnh)
      */
     public function getOrderDetails($id_don_hang) {
-        $sql = "SELECT s.ten_sach, ct.so_luong_ban, ct.don_gia_ban
+        $sql = "SELECT 
+                    s.id_sach,
+                    s.ten_sach, 
+                    ct.so_luong_ban, 
+                    ct.don_gia_ban,
+                    (ct.so_luong_ban * ct.don_gia_ban) AS thanh_tien
                 FROM chi_tiet_don_hang ct
                 JOIN sach s ON ct.id_sach = s.id_sach
-                WHERE ct.id_don_hang = ?";
+                WHERE ct.id_don_hang = ?
+                ORDER BY s.ten_sach";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id_don_hang]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Lấy thông tin phương thức thanh toán của đơn hàng
+     */
+    public function getPaymentMethod($id_don_hang) {
+        $sql = "SELECT pttt.ten_pttt, tt.trang_thai_tt, tt.ngay_gio_thanh_toan
+                FROM thanh_toan tt
+                JOIN phuong_thuc_thanh_toan pttt ON tt.id_pttt = pttt.id_pttt
+                WHERE tt.id_don_hang = ?
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_don_hang]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * Thống kê đơn hàng cho trang hồ sơ
+     */
+    public function getOrderSummary($id_tk) {
+        $sql = "SELECT 
+                    COUNT(*) AS total_orders,
+                    SUM(CASE WHEN dh.id_trang_thai = 1 THEN 1 ELSE 0 END) AS pending_orders,
+                    SUM(CASE WHEN dh.id_trang_thai = 3 THEN 1 ELSE 0 END) AS shipping_orders,
+                    SUM(CASE WHEN dh.id_trang_thai = 4 THEN 1 ELSE 0 END) AS completed_orders,
+                    SUM(CASE WHEN dh.id_trang_thai = 5 THEN 1 ELSE 0 END) AS cancelled_orders,
+                    COALESCE(SUM(CASE WHEN dh.id_trang_thai = 4 THEN (ct.so_luong_ban * ct.don_gia_ban) ELSE 0 END), 0) AS total_spent
+                FROM don_hang dh
+                LEFT JOIN chi_tiet_don_hang ct ON dh.id_don_hang = ct.id_don_hang
+                WHERE dh.id_tk = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_tk]);
+        $result = $stmt->fetch();
+
+        return [
+            'total_orders' => (int)($result->total_orders ?? 0),
+            'pending_orders' => (int)($result->pending_orders ?? 0),
+            'shipping_orders' => (int)($result->shipping_orders ?? 0),
+            'completed_orders' => (int)($result->completed_orders ?? 0),
+            'cancelled_orders' => (int)($result->cancelled_orders ?? 0),
+            'total_spent' => (float)($result->total_spent ?? 0),
+        ];
+    }
+
+    /**
+     * Lấy danh sách đơn hàng gần nhất
+     */
+    public function getRecentOrders($id_tk, $limit = 5) {
+        $limit = max(1, (int)$limit);
+        $sql = "SELECT 
+                    dh.id_don_hang,
+                    dh.ngay_gio_tao_don,
+                    dh.id_trang_thai,
+                    tt.trang_thai_dh,
+                    COALESCE(SUM(ct.so_luong_ban * ct.don_gia_ban), 0) AS tong_tien,
+                    MAX(tto.trang_thai_tt) AS trang_thai_tt
+                FROM don_hang dh
+                JOIN trang_thai_don_hang tt ON dh.id_trang_thai = tt.id_trang_thai
+                LEFT JOIN chi_tiet_don_hang ct ON dh.id_don_hang = ct.id_don_hang
+                LEFT JOIN thanh_toan tto ON dh.id_don_hang = tto.id_don_hang
+                WHERE dh.id_tk = ?
+                GROUP BY dh.id_don_hang
+                ORDER BY dh.ngay_gio_tao_don DESC
+                LIMIT ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $id_tk);
+        $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 
