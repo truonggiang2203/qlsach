@@ -48,5 +48,34 @@ class Database {
     public function lastInsertId() {
         return $this->conn->lastInsertId();
     }
+
+    /**
+     * Phương thức lấy kết nối PDO
+     * (Dùng cho transaction và các thao tác cần truy cập trực tiếp PDO)
+     */
+    public function getConnection() {
+        return $this->conn;
+    }
+
+    /**
+     * Bắt đầu transaction
+     */
+    public function beginTransaction() {
+        return $this->conn->beginTransaction();
+    }
+
+    /**
+     * Commit transaction
+     */
+    public function commit() {
+        return $this->conn->commit();
+    }
+
+    /**
+     * Rollback transaction
+     */
+    public function rollBack() {
+        return $this->conn->rollBack();
+    }
 }
 ?>

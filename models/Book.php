@@ -181,5 +181,159 @@ class Book {
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_OBJ); // Đảm bảo trả về OBJ
     }
+
+    /* =====================================================
+     📚 LẤY SÁCH CÙNG THỂ LOẠI
+    ===================================================== */
+    public function getBooksBySameCategory($id_sach, $limit = 8) {
+        // Lấy các thể loại của sách hiện tại
+        $sql = "SELECT DISTINCT stl.id_the_loai 
+                FROM sach_theloai stl 
+                WHERE stl.id_sach = ?";
+        $stmt = $this->db_connection->prepare($sql);
+        $stmt->execute([$id_sach]);
+        $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (empty($categories)) {
+            return [];
+        }
+        
+        // Tạo placeholders cho IN clause
+        $placeholders = implode(',', array_fill(0, count($categories), '?'));
+        
+        // Cast limit về int để đảm bảo an toàn (MySQL không cho bind parameter cho LIMIT)
+        $limit = (int)$limit;
+        if ($limit <= 0) $limit = 8;
+        
+        $sql = "SELECT 
+                    s.*, n.ten_nxb, k.phan_tram_km, g.gia_sach_ban,
+                    GROUP_CONCAT(DISTINCT tl.ten_the_loai SEPARATOR ', ') AS danh_sach_the_loai,
+                    GROUP_CONCAT(DISTINCT tg.ten_tac_gia SEPARATOR ', ') AS ten_tac_gia
+                FROM sach s
+                
+                LEFT JOIN sach_theloai stl ON s.id_sach = stl.id_sach
+                LEFT JOIN the_loai tl ON stl.id_the_loai = tl.id_the_loai
+                LEFT JOIN s_tg st ON s.id_sach = st.id_sach
+                LEFT JOIN tac_gia tg ON st.id_tac_gia = tg.id_tac_gia
+                
+                JOIN nxb n ON s.id_nxb = n.id_nxb
+                JOIN khuyen_mai k ON s.id_km = k.id_km
+                JOIN gia_sach g ON s.id_sach = g.id_sach
+                JOIN thoi_diem td ON g.tg_gia_bd = td.tg_gia_bd
+                
+                WHERE s.id_sach != ?
+                AND s.trang_thai_sach = 1
+                AND stl.id_the_loai IN ($placeholders)
+                AND NOW() BETWEEN td.tg_gia_bd AND COALESCE(td.tg_gia_kt, '2099-12-31 23:59:59')
+                
+                GROUP BY s.id_sach
+                ORDER BY RAND()
+                LIMIT $limit";
+        
+        $params = array_merge([$id_sach], $categories);
+        $stmt = $this->db_connection->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /* =====================================================
+     🎯 LẤY SÁCH GỢI Ý (DỰA TRÊN LỊCH SỬ ĐƠN HÀNG)
+    ===================================================== */
+    public function getRecommendedBooks($id_tk = null, $limit = 8) {
+        $params = [];
+        
+        $sql = "SELECT 
+                    s.*, n.ten_nxb, k.phan_tram_km, g.gia_sach_ban,
+                    GROUP_CONCAT(DISTINCT tl.ten_the_loai SEPARATOR ', ') AS danh_sach_the_loai,
+                    GROUP_CONCAT(DISTINCT tg.ten_tac_gia SEPARATOR ', ') AS ten_tac_gia,
+                    COALESCE(COUNT(DISTINCT ctdh.id_don_hang), 0) as so_luot_mua";
+        
+        $sql .= " FROM sach s
+                
+                LEFT JOIN sach_theloai stl ON s.id_sach = stl.id_sach
+                LEFT JOIN the_loai tl ON stl.id_the_loai = tl.id_the_loai
+                LEFT JOIN s_tg st ON s.id_sach = st.id_sach
+                LEFT JOIN tac_gia tg ON st.id_tac_gia = tg.id_tac_gia
+                
+                JOIN nxb n ON s.id_nxb = n.id_nxb
+                JOIN khuyen_mai k ON s.id_km = k.id_km
+                JOIN gia_sach g ON s.id_sach = g.id_sach
+                JOIN thoi_diem td ON g.tg_gia_bd = td.tg_gia_bd
+                
+                LEFT JOIN chi_tiet_don_hang ctdh ON s.id_sach = ctdh.id_sach";
+        
+        // Nếu có user, ưu tiên sách cùng thể loại với sách đã mua
+        if ($id_tk) {
+            $sql .= " LEFT JOIN (
+                        SELECT DISTINCT stl2.id_the_loai
+                        FROM chi_tiet_don_hang ctdh2
+                        JOIN don_hang dh2 ON ctdh2.id_don_hang = dh2.id_don_hang
+                        JOIN sach_theloai stl2 ON ctdh2.id_sach = stl2.id_sach
+                        WHERE dh2.id_tk = ?
+                    ) user_categories ON stl.id_the_loai = user_categories.id_the_loai";
+            $params[] = $id_tk;
+        }
+        
+        $sql .= " WHERE s.trang_thai_sach = 1
+                AND NOW() BETWEEN td.tg_gia_bd AND COALESCE(td.tg_gia_kt, '2099-12-31 23:59:59')
+                
+                GROUP BY s.id_sach";
+        
+        // Nếu có user, ưu tiên sách cùng thể loại
+        if ($id_tk) {
+            $sql .= " ORDER BY (user_categories.id_the_loai IS NOT NULL) DESC, so_luot_mua DESC, RAND()";
+        } else {
+            $sql .= " ORDER BY so_luot_mua DESC, RAND()";
+        }
+        
+        // Cast limit về int để đảm bảo an toàn (MySQL không cho bind parameter cho LIMIT)
+        $limit = (int)$limit;
+        if ($limit <= 0) $limit = 8;
+        
+        $sql .= " LIMIT $limit";
+        
+        $stmt = $this->db_connection->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /* =====================================================
+     🔥 LẤY SÁCH BÁN CHẠY
+    ===================================================== */
+    public function getBestsellerBooks($limit = 8) {
+        // Cast limit về int để đảm bảo an toàn (MySQL không cho bind parameter cho LIMIT)
+        $limit = (int)$limit;
+        if ($limit <= 0) $limit = 8;
+        
+        $sql = "SELECT 
+                    s.*, n.ten_nxb, k.phan_tram_km, g.gia_sach_ban,
+                    GROUP_CONCAT(DISTINCT tl.ten_the_loai SEPARATOR ', ') AS danh_sach_the_loai,
+                    GROUP_CONCAT(DISTINCT tg.ten_tac_gia SEPARATOR ', ') AS ten_tac_gia,
+                    COALESCE(SUM(ctdh.so_luong_ban), 0) as tong_ban
+                FROM sach s
+                
+                LEFT JOIN sach_theloai stl ON s.id_sach = stl.id_sach
+                LEFT JOIN the_loai tl ON stl.id_the_loai = tl.id_the_loai
+                LEFT JOIN s_tg st ON s.id_sach = st.id_sach
+                LEFT JOIN tac_gia tg ON st.id_tac_gia = tg.id_tac_gia
+                
+                JOIN nxb n ON s.id_nxb = n.id_nxb
+                JOIN khuyen_mai k ON s.id_km = k.id_km
+                JOIN gia_sach g ON s.id_sach = g.id_sach
+                JOIN thoi_diem td ON g.tg_gia_bd = td.tg_gia_bd
+                
+                LEFT JOIN chi_tiet_don_hang ctdh ON s.id_sach = ctdh.id_sach
+                
+                WHERE s.trang_thai_sach = 1
+                AND NOW() BETWEEN td.tg_gia_bd AND COALESCE(td.tg_gia_kt, '2099-12-31 23:59:59')
+                
+                GROUP BY s.id_sach
+                ORDER BY tong_ban DESC, RAND()
+                LIMIT $limit";
+        
+        $stmt = $this->db_connection->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
 }
 ?>
