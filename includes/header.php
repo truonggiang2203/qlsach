@@ -17,6 +17,11 @@ $cartCount = $_SESSION['cartCount'] ?? 0;
 require_once __DIR__ . '/../models/Compare.php';
 $compareModelNav = new Compare();
 $compareCount = $compareModelNav->getCount();
+
+// Lấy số lượng thông báo chưa đọc
+require_once __DIR__ . '/../models/Notification.php';
+$notificationModelNav = new Notification();
+$notificationCount = $notificationModelNav->getUnreadCount();
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -25,6 +30,25 @@ $compareCount = $compareModelNav->getCount();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QLSách - Cửa hàng sách</title>
     <link rel="stylesheet" href="/qlsach/public/css/style.css">
+    <link rel="stylesheet" href="/qlsach/public/css/wishlist-button.css">
+    <?php if (strpos($_SERVER['REQUEST_URI'], 'checkout') !== false): ?>
+        <link rel="stylesheet" href="/qlsach/public/css/checkout.css">
+    <?php endif; ?>
+    <?php if (strpos($_SERVER['REQUEST_URI'], 'wishlist') !== false): ?>
+        <link rel="stylesheet" href="/qlsach/public/css/wishlist.css">
+    <?php endif; ?>
+           <?php if (strpos($_SERVER['REQUEST_URI'], 'book_detail') !== false): ?>
+               <link rel="stylesheet" href="/qlsach/public/css/comment.css">
+           <?php endif; ?>
+           <?php if (strpos($_SERVER['REQUEST_URI'], 'orders') !== false): ?>
+               <link rel="stylesheet" href="/qlsach/public/css/orders.css">
+           <?php endif; ?>
+           <?php if (strpos($_SERVER['REQUEST_URI'], 'profile') !== false): ?>
+               <link rel="stylesheet" href="/qlsach/public/css/profile.css">
+           <?php endif; ?>
+           <?php if (strpos($_SERVER['REQUEST_URI'], 'search') !== false): ?>
+               <link rel="stylesheet" href="/qlsach/public/css/search.css">
+           <?php endif; ?>
 </head>
 
 <body>
@@ -65,6 +89,22 @@ $compareCount = $compareModelNav->getCount();
                     <span class="action-badge"><?= $compareCount ?></span>
                 <?php endif; ?>
             </a>
+
+            <!-- Thông báo -->
+            <?php if (isset($_SESSION['id_tk'])): ?>
+                <div class="notification-wrapper">
+                    <a href="/qlsach/user/notifications.php" class="action-item notification-item" title="Thông báo">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="action-text">Thông báo</span>
+                        <?php if ($notificationCount > 0): ?>
+                            <span class="action-badge"><?= $notificationCount ?></span>
+                        <?php endif; ?>
+                    </a>
+                </div>
+            <?php endif; ?>
 
             <!-- Giỏ hàng -->
             <a href="/qlsach/user/cart.php" class="action-item cart-item" title="Giỏ hàng">

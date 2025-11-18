@@ -617,6 +617,8 @@ img {
     box-shadow: var(--shadow);
     overflow: hidden;
     transition: 0.2s;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-item:hover {
@@ -625,14 +627,20 @@ img {
 }
 
 .product-item img {
+    width: 100%;
     height: 260px;
     object-fit: cover;
     border-bottom: 1px solid #eee;
+    display: block;
+    flex-shrink: 0;
 }
 
 .product-info {
     padding: 15px;
     text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-info h4 {

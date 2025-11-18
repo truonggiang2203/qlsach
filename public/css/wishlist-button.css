@@ -1,0 +1,242 @@
+/* =========================================================
+   ❤️ WISHLIST BUTTON STYLES - Dùng chung cho tất cả trang
+========================================================= */
+
+/* Wishlist Button trên Product Item */
+.product-item-wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-decoration: none;
+    padding: 0;
+}
+
+.product-item-wishlist-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    fill: none;
+    stroke: #666;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.product-item-wishlist-btn:hover {
+    background: var(--danger);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(247, 136, 136, 0.4);
+}
+
+.product-item-wishlist-btn:hover svg {
+    stroke: white;
+    transform: scale(1.1);
+}
+
+.product-item-wishlist-btn.active {
+    background: var(--danger);
+}
+
+.product-item-wishlist-btn.active svg {
+    fill: white;
+    stroke: white;
+    animation: heartBeat 0.5s ease-out;
+}
+
+.product-item-wishlist-btn.active:hover {
+    background: #f56a6a;
+    transform: scale(1.15);
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Product Item cần position relative để button absolute hoạt động */
+.product-item {
+    position: relative;
+}
+
+/* Wishlist Button trên Book Card (dùng trong book_detail.php) */
+.book-card-wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-decoration: none;
+    padding: 0;
+}
+
+.book-card-wishlist-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    fill: none;
+    stroke: #666;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.book-card-wishlist-btn:hover {
+    background: var(--danger);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(247, 136, 136, 0.4);
+}
+
+.book-card-wishlist-btn:hover svg {
+    stroke: white;
+    transform: scale(1.1);
+}
+
+.book-card-wishlist-btn.active {
+    background: var(--danger);
+}
+
+.book-card-wishlist-btn.active svg {
+    fill: white;
+    stroke: white;
+    animation: heartBeat 0.5s ease-out;
+}
+
+.book-card-wishlist-btn.active:hover {
+    background: #f56a6a;
+    transform: scale(1.15);
+}
+
+/* Wishlist Button trong Product Info (bên cạnh nút thêm vào giỏ) */
+.product-info-wishlist-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--danger);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.product-info-wishlist-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    fill: white;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.product-info-wishlist-btn:hover {
+    background: #f56a6a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 136, 136, 0.4);
+    text-decoration: none;
+}
+
+.product-info-wishlist-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.product-info-wishlist-btn.active {
+    background: #f56a6a;
+}
+
+.product-info-wishlist-btn.active svg {
+    animation: heartBeat 0.5s ease-out;
+}
+
+/* Product Actions - Container cho các nút */
+.product-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.product-actions .btn {
+    flex: 1;
+}
+
+/* Loading state */
+.wishlist-btn-loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.wishlist-btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success animation */
+.wishlist-btn-success {
+    animation: wishlistSuccess 0.5s ease-out;
+}
+
+@keyframes wishlistSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .product-item-wishlist-btn,
+    .book-card-wishlist-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+        top: 8px;
+        right: 8px;
+    }
+    
+    .product-info-wishlist-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
+
