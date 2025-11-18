@@ -11,7 +11,6 @@ $action = $_GET['action'] ?? '';
 
 switch ($action) {
 
-    /*TẠO ĐƠN HÀNG (ĐÃ SỬA LỖI) */
     case 'create':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -34,24 +33,26 @@ switch ($action) {
             // 5. Tạo đơn hàng
             $result = $orderModel->createOrder($id_don_hang, $id_tk, $dia_chi, $checkoutCart, $id_pttt);
 
-            // SỬA LẠI LOGIC KIỂM TRA KẾT QUẢ
             if ($result['success']) {
-                // 6. Xóa sản phẩm đã mua khỏi GIỎ HÀNG CHÍNH
+
+                // XÓA SẢN PHẨM ĐÃ MUA KHỎI GIỎ HÀNG (Cart model)
                 foreach ($checkoutCart as $id_sach => $item) {
                     $cartModel->remove($id_sach); 
                 }
-                
-                // 7. Xóa giỏ hàng tạm
+
+                // XÓA GIỎ HÀNG TẠM
                 unset($_SESSION['checkout_cart']);
-                
-                // 8. Chuyển đến trang cảm ơn
+
+                // ⭐ CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG SAU KHI XÓA ⭐
+                $_SESSION['cartCount'] = $cartModel->getCount();
+
+                // Chuyển đến trang cảm ơn
                 header("Location: ../user/thankyou.php?id_don_hang=" . $id_don_hang);
                 exit;
                 
             } else {
-                // 9. HIỂN THỊ LỖI CHI TIẾT TỪ MODEL
+
                 $error_message = $result['message'] ?? 'Đặt hàng thất bại! Lỗi không xác định.';
-                // Làm sạch thông báo lỗi để hiển thị an toàn trong JavaScript
                 $safe_message = addslashes($error_message);
                 
                 echo "<script>alert('$safe_message'); window.location.href='../user/checkout.php';</script>";
@@ -60,8 +61,6 @@ switch ($action) {
         }
         break;
 
-    // ... (Các case 'cancel' và 'default' không đổi) ...
-    /*HỦY ĐƠN HÀNG */
     case 'cancel':
         if (isset($_GET['id_don_hang'])) {
             $id_don_hang = $_GET['id_don_hang'];
@@ -70,7 +69,6 @@ switch ($action) {
         }
         break;
 
-    /* Mặc định: Quay lại danh sách đơn hàng */
     default:
         header("Location: ../user/orders.php");
         break;

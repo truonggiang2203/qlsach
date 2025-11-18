@@ -17,7 +17,7 @@ class Order {
      */
     public function createOrder($id_don_hang, $id_tk, $dia_chi, $cartItems, $id_pttt) {
         try {
-            $this->db->prepare("START TRANSACTION")->execute();
+            $this->db->beginTransaction();
 
             // 1️⃣ Tạo đơn hàng
             $sql_dh = "INSERT INTO don_hang (id_don_hang, id_tk, id_trang_thai, ngay_gio_tao_don, dia_chi_nhan_hang)
@@ -32,7 +32,7 @@ class Order {
             
             foreach ($cartItems as $item) {
                 // SỬ DỤNG KEY TIẾNG ANH
-                $id_sach  = $item['id'];
+                $id_sach  = $item['id_sach'];
                 $quantity = $item['quantity'];
                 $price    = $item['price'];
                 $discount = $item['discount_percent'] ?? 0;
@@ -63,13 +63,13 @@ class Order {
             $stmt_tt->execute([$id_pttt, $id_don_hang]);
 
             // Hoàn tất
-            $this->db->prepare("COMMIT")->execute();
+            $this->db->commit();
             
             // Trả về true nếu thành công
             return ['success' => true];
 
         } catch (Exception $e) { // Bắt lỗi chung
-            $this->db->prepare("ROLLBACK")->execute();
+            $this->db->rollBack();
             // Trả về thông báo lỗi cụ thể
             return ['success' => false, 'message' => $e->getMessage()];
         }

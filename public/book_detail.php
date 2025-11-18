@@ -22,9 +22,12 @@ if (!$book) {
     exit;
 }
 require_once '../models/Wishlist.php';
+require_once '../models/Compare.php';
 
 $wishlistModel = new Wishlist();
+$compareModel = new Compare();
 $isWishlisted = false;
+$isInCompare = $compareModel->exists($id_sach);
 
 if (isset($_SESSION['id_tk'])) {
     $id_tk = $_SESSION['id_tk'];
@@ -35,6 +38,21 @@ if (isset($_SESSION['id_tk'])) {
 // 2. LẤY DỮ LIỆU BÌNH LUẬN
 $comments = $commentModel->getCommentsByBook($id_sach);
 $avg_rating = $commentModel->getAverageRating($id_sach);
+
+// 3. LẤY SÁCH CÙNG THỂ LOẠI VÀ SÁCH GỢI Ý
+$sameCategoryBooks = $bookModel->getBooksBySameCategory($id_sach, 8);
+$id_tk = $_SESSION['id_tk'] ?? null;
+$recommendedBooks = $bookModel->getRecommendedBooks($id_tk, 8);
+
+// Helper function để lấy đường dẫn hình ảnh sách
+function getBookImagePath($id_sach) {
+    $imagePath = "/qlsach/public/uploads/" . $id_sach . ".jpg";
+    $fullPath = __DIR__ . "/uploads/" . $id_sach . ".jpg";
+    if (file_exists($fullPath)) {
+        return $imagePath;
+    }
+    return "/qlsach/public/uploads/default-book.png";
+}
 ?>
 
 <div class="container" style="margin-top: 30px; margin-bottom: 30px;">
@@ -42,7 +60,7 @@ $avg_rating = $commentModel->getAverageRating($id_sach);
 
         <div class="product-gallery">
             <div class="product-main-image">
-                <img src="https://via.placeholder.com/500x500?text=<?= urlencode($book->ten_sach) ?>"
+                <img src="<?= getBookImagePath($book->id_sach) ?>"
                     alt="<?= htmlspecialchars($book->ten_sach) ?>"
                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
             </div>
@@ -107,7 +125,8 @@ $avg_rating = $commentModel->getAverageRating($id_sach);
 
                     <a href="/qlsach/guest/login.php"
                         style="background:#ff4d6d; padding:12px 20px; border-radius:6px;
-              color:white; font-size:18px; text-decoration:none; display:flex; align-items:center;">
+              color:white; font-size:18px; text-decoration:none; display:flex; align-items:center;"
+                        title="Yêu thích">
                         🤍
                     </a>
 
@@ -117,7 +136,8 @@ $avg_rating = $commentModel->getAverageRating($id_sach);
 
                         <a href="/qlsach/controllers/wishlistController.php?action=remove&id_sach=<?= $id_sach ?>"
                             style="background:#ff4d6d; padding:12px 20px; border-radius:6px;
-                  color:white; font-size:18px; text-decoration:none; display:flex; align-items:center;">
+                  color:white; font-size:18px; text-decoration:none; display:flex; align-items:center;"
+                            title="Bỏ yêu thích">
                             ❤️
                         </a>
 
@@ -125,12 +145,28 @@ $avg_rating = $commentModel->getAverageRating($id_sach);
 
                         <a href="/qlsach/controllers/wishlistController.php?action=add&id_sach=<?= $id_sach ?>"
                             style="background:#ff4d6d; padding:12px 20px; border-radius:6px;
-                  color:white; font-size:18px; text-decoration:none; display:flex; align-items:center;">
+                  color:white; font-size:18px; text-decoration:none; display:flex; align-items:center;"
+                            title="Thêm vào yêu thích">
                             🤍
                         </a>
 
                     <?php endif; ?>
 
+                <?php endif; ?>
+
+                <!-- COMPARE BUTTON -->
+                <?php if ($isInCompare): ?>
+                    <a href="/qlsach/controllers/compareController.php?action=remove&id_sach=<?= $id_sach ?>"
+                       class="btn-compare btn-compare-active"
+                       title="Xóa khỏi danh sách so sánh">
+                        ⚖️ Đã thêm
+                    </a>
+                <?php else: ?>
+                    <a href="/qlsach/controllers/compareController.php?action=add&id_sach=<?= $id_sach ?>"
+                       class="btn-compare"
+                       title="Thêm vào danh sách so sánh">
+                        ⚖️ So sánh
+                    </a>
                 <?php endif; ?>
 
             </div>
@@ -205,6 +241,97 @@ $avg_rating = $commentModel->getAverageRating($id_sach);
             </div>
         </div>
     </div>
+
+    <!-- SÁCH CÙNG THỂ LOẠI -->
+    <?php if (!empty($sameCategoryBooks)): ?>
+        <div class="related-books-section" style="margin-top: 40px;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    Sách cùng thể loại
+                </h2>
+            </div>
+            <div class="product-grid">
+                <?php foreach ($sameCategoryBooks as $relatedBook): 
+                    $relatedDiscountPrice = $relatedBook->gia_sach_ban * (1 - ($relatedBook->phan_tram_km ?? 0) / 100);
+                ?>
+                    <div class="product-item">
+                        <img src="<?= getBookImagePath($relatedBook->id_sach) ?>" 
+                             alt="<?= htmlspecialchars($relatedBook->ten_sach) ?>">
+                        <div class="product-info">
+                            <h4>
+                                <a href="/qlsach/public/book_detail.php?id_sach=<?= $relatedBook->id_sach ?>">
+                                    <?= htmlspecialchars($relatedBook->ten_sach) ?>
+                                </a>
+                            </h4>
+                            <div class="product-price">
+                                <?php if ($relatedBook->phan_tram_km > 0): ?>
+                                    <?= number_format($relatedDiscountPrice, 0, ',', '.') ?>đ
+                                    <span class="discount">-<?= $relatedBook->phan_tram_km ?>%</span>
+                                <?php else: ?>
+                                    <?= number_format($relatedBook->gia_sach_ban, 0, ',', '.') ?>đ
+                                <?php endif; ?>
+                            </div>
+                            <form action="/qlsach/controllers/cartController.php?action=add" method="POST">
+                                <input type="hidden" name="id_sach" value="<?= htmlspecialchars($relatedBook->id_sach) ?>">
+                                <input type="hidden" name="so_luong" value="1">
+                                <button type="submit" class="btn">🛒 Thêm vào giỏ</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <!-- SÁCH GỢI Ý -->
+    <?php if (!empty($recommendedBooks)): ?>
+        <div class="recommended-books-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    <?= $id_tk ? 'Gợi ý dành cho bạn' : 'Sách bán chạy' ?>
+                </h2>
+            </div>
+            <div class="product-grid">
+                <?php foreach ($recommendedBooks as $recBook): 
+                    $recDiscountPrice = $recBook->gia_sach_ban * (1 - ($recBook->phan_tram_km ?? 0) / 100);
+                ?>
+                    <div class="product-item">
+                        <img src="<?= getBookImagePath($recBook->id_sach) ?>" 
+                             alt="<?= htmlspecialchars($recBook->ten_sach) ?>">
+                        <div class="product-info">
+                            <h4>
+                                <a href="/qlsach/public/book_detail.php?id_sach=<?= $recBook->id_sach ?>">
+                                    <?= htmlspecialchars($recBook->ten_sach) ?>
+                                </a>
+                            </h4>
+                            <div class="product-price">
+                                <?php if ($recBook->phan_tram_km > 0): ?>
+                                    <?= number_format($recDiscountPrice, 0, ',', '.') ?>đ
+                                    <span class="discount">-<?= $recBook->phan_tram_km ?>%</span>
+                                <?php else: ?>
+                                    <?= number_format($recBook->gia_sach_ban, 0, ',', '.') ?>đ
+                                <?php endif; ?>
+                            </div>
+                            <form action="/qlsach/controllers/cartController.php?action=add" method="POST">
+                                <input type="hidden" name="id_sach" value="<?= htmlspecialchars($recBook->id_sach) ?>">
+                                <input type="hidden" name="so_luong" value="1">
+                                <button type="submit" class="btn">🛒 Thêm vào giỏ</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <script>

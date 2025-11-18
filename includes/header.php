@@ -12,6 +12,11 @@ $subCategoriesNav = $categoryModelNav->getAllSubCategories();
 
 // Lấy số lượng giỏ hàng từ session
 $cartCount = $_SESSION['cartCount'] ?? 0;
+
+// Lấy số lượng sách trong danh sách so sánh
+require_once __DIR__ . '/../models/Compare.php';
+$compareModelNav = new Compare();
+$compareCount = $compareModelNav->getCount();
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -26,51 +31,124 @@ $cartCount = $_SESSION['cartCount'] ?? 0;
 <div class="page-container">
 
 <header class="main-header">
-    <div class="logo">
-        <a href="/qlsach/public/index.php" style="text-decoration:none; color:var(--primary);">
-            📚 QLSách
-        </a>
-    </div>
+    <div class="header-container">
+        <!-- Logo -->
+        <div class="header-logo">
+            <a href="/qlsach/public/index.php" class="logo-link">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">QLSách</span>
+            </a>
+        </div>
 
-    <div class="search-bar">
-        <form action="/qlsach/public/search.php" method="GET">
-            <input type="text" name="keyword" placeholder="Tìm kiếm sách bạn muốn...">
-        </form>
-    </div>
+        <!-- Search Bar -->
+        <div class="header-search">
+            <form action="/qlsach/public/search.php" method="GET" class="search-form">
+                <input type="text" name="keyword" placeholder="Tìm kiếm sách, tác giả, thể loại..." class="search-input">
+                <button type="submit" class="search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
 
-    <div class="user-actions">
-
-        <!-- ===================== GIỎ HÀNG ===================== -->
-        <a href="/qlsach/user/cart.php" class="cart-display">
-            <img src="/qlsach/images/cart-icon.png" alt="Giỏ hàng" class="nav-icon">
-            Giỏ hàng (<?= $cartCount ?>)
-        </a>
-
-        <!-- ===================== NGƯỜI DÙNG ===================== -->
-        <?php if (isset($_SESSION['id_tk'])): ?>
-            
-            <span>
-                Chào, <b><?= htmlspecialchars($_SESSION['ho_ten']) ?></b>
-            </span>
-
-            <a href="/qlsach/user/profile.php">Tài khoản</a>
-            <a href="/qlsach/user/orders.php">Đơn hàng</a>
-            <a href="/qlsach/user/wishlist.php">Yêu thích</a>
-
-            <?php if (!empty($_SESSION['phan_quyen']) && $_SESSION['phan_quyen'] === 'admin'): ?>
-                <a href="/qlsach/admin/dashboard.php">Quản trị</a>
-            <?php endif; ?>
-
-            <a href="/qlsach/controllers/authController.php?action=logout" class="btn-logout">
-                Đăng xuất
+        <!-- User Actions -->
+        <div class="header-actions">
+            <!-- So sánh -->
+            <a href="/qlsach/user/compare.php" class="action-item compare-item" title="So sánh sách">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                <span class="action-text">So sánh</span>
+                <?php if ($compareCount > 0): ?>
+                    <span class="action-badge"><?= $compareCount ?></span>
+                <?php endif; ?>
             </a>
 
-        <?php else: ?>
+            <!-- Giỏ hàng -->
+            <a href="/qlsach/user/cart.php" class="action-item cart-item" title="Giỏ hàng">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span class="action-text">Giỏ hàng</span>
+                <?php if ($cartCount > 0): ?>
+                    <span class="action-badge"><?= $cartCount ?></span>
+                <?php endif; ?>
+            </a>
 
-            <a href="/qlsach/guest/login.php">Đăng nhập</a>
-            <a href="/qlsach/guest/register.php">Đăng ký</a>
-
-        <?php endif; ?>
+            <!-- User Menu -->
+            <?php if (isset($_SESSION['id_tk'])): ?>
+                <div class="user-menu-wrapper">
+                    <div class="user-menu-trigger">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span class="user-name"><?= htmlspecialchars(mb_substr($_SESSION['ho_ten'], 0, 15)) ?></span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dropdown-arrow">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="user-menu-dropdown">
+                        <a href="/qlsach/user/profile.php" class="menu-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Tài khoản
+                        </a>
+                        <a href="/qlsach/user/orders.php" class="menu-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                            </svg>
+                            Đơn hàng
+                        </a>
+                        <a href="/qlsach/user/wishlist.php" class="menu-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            Yêu thích
+                        </a>
+                        <a href="/qlsach/user/compare.php" class="menu-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                            </svg>
+                            So sánh
+                        </a>
+                        <?php if (!empty($_SESSION['phan_quyen']) && $_SESSION['phan_quyen'] === 'admin'): ?>
+                            <div class="menu-divider"></div>
+                            <a href="/qlsach/admin/dashboard.php" class="menu-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                                Quản trị
+                            </a>
+                        <?php endif; ?>
+                        <div class="menu-divider"></div>
+                        <a href="/qlsach/controllers/authController.php?action=logout" class="menu-item menu-item-danger">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="auth-buttons">
+                    <a href="/qlsach/guest/login.php" class="btn-auth btn-login">Đăng nhập</a>
+                    <a href="/qlsach/guest/register.php" class="btn-auth btn-register">Đăng ký</a>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </header>
 

@@ -1,149 +1,145 @@
 <?php
-// Đảm bảo session đã được khởi tạo trước khi dùng class này
-// (thường là ở header.php hoặc file index gốc)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class Cart {
 
-    /**
-     * Khởi tạo giỏ hàng trong SESSION khi class được gọi
-     */
     public function __construct() {
         if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
         }
     }
 
-    /**
-     * Lấy tất cả sản phẩm trong giỏ hàng
-     * @return array
-     */
+    /* =====================================================
+        LẤY TOÀN BỘ GIỎ HÀNG
+    ===================================================== */
     public function getItems() {
         return $_SESSION['cart'];
     }
 
-    /**
-     * Thêm sản phẩm vào giỏ hàng
-     * @param object $book Đối tượng Sách (từ BookModel)
-     * @param int $quantity_to_add Số lượng muốn thêm
-     */
+    /* =====================================================
+        THÊM SẢN PHẨM
+    ===================================================== */
     public function add($book, $quantity_to_add = 1) {
-        if (!$book || $quantity_to_add <= 0) {
-            return;
-        }
+
+        if (!$book || $quantity_to_add <= 0) return;
 
         $id_sach = $book->id_sach;
         $stock = $book->so_luong_ton;
 
-        // 1. Nếu sản phẩm đã có trong giỏ
+        // Nếu SP đã tồn tại trong giỏ
         if (isset($_SESSION['cart'][$id_sach])) {
-            $current_quantity = $_SESSION['cart'][$id_sach]['quantity'];
-            $new_quantity = $current_quantity + $quantity_to_add;
 
-            // Kiểm tra tồn kho
-            if ($new_quantity > $stock) {
-                $new_quantity = $stock; // Chỉ cho phép thêm tối đa
-            }
-            $_SESSION['cart'][$id_sach]['quantity'] = $new_quantity;
-        
-        // 2. Nếu sản phẩm chưa có trong giỏ
-        } else {
-            // Kiểm tra tồn kho
-            if ($quantity_to_add > $stock) {
-                $quantity_to_add = $stock;
-            }
-            
-            // Thêm mới với key Tiếng Anh
-            $_SESSION['cart'][$id_sach] = [
-                'id' => $book->id_sach,
-                'name' => $book->ten_sach,
-                'price' => $book->gia_sach_ban,
-                'image' => $book->hinh_anh ?? 'https://via.placeholder.com/100',
-                'quantity' => $quantity_to_add,
-                'discount_percent' => $book->phan_tram_km ?? 0,
-                'stock' => $stock
-            ];
-        }
-    }
+            $current_qty = $_SESSION['cart'][$id_sach]['quantity'];
+            $new_qty = $current_qty + $quantity_to_add;
 
-    /**
-     * Cập nhật số lượng của 1 sản phẩm
-     * @param int $id_sach ID Sách
-     * @param int $quantity Số lượng mới
-     */
-    public function update($id_sach, $quantity) {
-        if (!isset($_SESSION['cart'][$id_sach]) || $quantity <= 0) {
+            if ($new_qty > $stock) $new_qty = $stock;
+
+            $_SESSION['cart'][$id_sach]['quantity'] = $new_qty;
             return;
         }
 
-        $stock = $_SESSION['cart'][$id_sach]['stock'] ?? 0;
-        
-        if ($quantity > $stock) {
-            $quantity = $stock; // Không cho phép cập nhật quá tồn kho
+        // Nếu SP chưa có → thêm mới
+        if ($quantity_to_add > $stock) $quantity_to_add = $stock;
+
+        $_SESSION['cart'][$id_sach] = [
+            'id_sach'         => $book->id_sach,
+            'name'            => $book->ten_sach,
+            'price'           => $book->gia_sach_ban,
+            'image'           => $book->hinh_anh ?? 'https://via.placeholder.com/100',
+            'quantity'        => $quantity_to_add,
+            'discount_percent'=> $book->phan_tram_km ?? 0,
+            'stock'           => $stock
+        ];
+    }
+
+    /* =====================================================
+        CẬP NHẬT SỐ LƯỢNG
+    ===================================================== */
+    public function update($id_sach, $quantity) {
+
+        if (!isset($_SESSION['cart'][$id_sach])) return;
+
+        if ($quantity <= 0) {
+            unset($_SESSION['cart'][$id_sach]);
+            return;
         }
-        
+
+        $stock = $_SESSION['cart'][$id_sach]['stock'];
+
+        if ($quantity > $stock) $quantity = $stock;
+
         $_SESSION['cart'][$id_sach]['quantity'] = $quantity;
     }
 
-    /**
-     * Xóa 1 sản phẩm khỏi giỏ
-     * @param int $id_sach ID Sách
-     */
+    /* =====================================================
+        XÓA 1 SẢN PHẨM
+    ===================================================== */
     public function remove($id_sach) {
         unset($_SESSION['cart'][$id_sach]);
     }
 
-    /**
-     * Làm trống toàn bộ giỏ hàng
-     */
+    /* =====================================================
+        XÓA TOÀN BỘ GIỎ
+    ===================================================== */
     public function clear() {
         $_SESSION['cart'] = [];
     }
 
-    /**
-     * Đếm tổng số lượng sản phẩm (ví dụ: 2 sách A + 3 sách B = 5)
-     * @return int
-     */
+    /* =====================================================
+        ĐẾM TỔNG SỐ LƯỢNG GIỎ HÀNG
+    ===================================================== */
     public function getCount() {
         return array_sum(array_column($_SESSION['cart'], 'quantity'));
     }
 
-    /**
-     * Tính toán tổng tiền
-     * @return array
-     */
+    /* =====================================================
+        TÍNH TỔNG GIỎ HÀNG
+    ===================================================== */
     public function calculateTotals() {
+
         $subtotal = 0;
-        $totalDiscount = 0;
-        $cart = $this->getItems(); // Lấy giỏ hàng
+        $discountTotal = 0;
 
-        foreach ($cart as $item) {
-            $price = $item['price'] ?? 0;
-            $quantity = $item['quantity'] ?? 0;
-            $discount_percent = $item['discount_percent'] ?? 0;
+        foreach ($_SESSION['cart'] as $item) {
 
-            $itemTotal = $price * $quantity;
-            $subtotal += $itemTotal;
-            
-            if ($discount_percent > 0) {
-                $totalDiscount += ($price * $discount_percent / 100) * $quantity;
+            $price = $item['price'];
+            $qty   = $item['quantity'];
+            $discount = $item['discount_percent'];
+
+            $subtotal += $price * $qty;
+
+            if ($discount > 0) {
+                $discountTotal += ($price * $discount / 100) * $qty;
             }
         }
-        $total = $subtotal - $totalDiscount;
-        return ['subtotal' => $subtotal, 'totalDiscount' => $totalDiscount, 'total' => $total];
+
+        $total = $subtotal - $discountTotal;
+
+        return [
+            'subtotal'      => $subtotal,
+            'totalDiscount' => $discountTotal,
+            'total'         => $total
+        ];
     }
-    
-    /**
-     * Tính tạm tính của 1 sản phẩm (hữu ích cho AJAX)
-     * @return float
-     */
+
+    /* =====================================================
+        TÍNH TẠM TÍNH 1 SẢN PHẨM
+    ===================================================== */
     public function getItemSubtotal($id_sach) {
-        if (!isset($_SESSION['cart'][$id_sach])) {
-            return 0;
-        }
-        
+
+        if (!isset($_SESSION['cart'][$id_sach])) return 0;
+
         $item = $_SESSION['cart'][$id_sach];
-        $discountedPrice = $item['price'] * (1 - $item['discount_percent'] / 100);
-        return $discountedPrice * $item['quantity'];
+
+        $price = $item['price'];
+        $discount = $item['discount_percent'];
+        $qty = $item['quantity'];
+
+        $discountedPrice = $price * (1 - $discount / 100);
+
+        return $discountedPrice * $qty;
     }
 }
 ?>
