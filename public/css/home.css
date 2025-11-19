@@ -1,0 +1,178 @@
+/* ===============================
+   HOME PAGE STYLES (OPTIMIZED)
+=============================== */
+.home-banner {
+    position: relative;
+    width: 100%;
+    gap: 12px;
+    margin: 18px 0;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+/* Slides container */
+.home-banner .banner-slides {
+    display: flex;
+    height: 220px;
+
+    /* MƯỢT HƠN - easing đẹp */
+    transition: transform 0.9s cubic-bezier(0.25, 0.1, 0.25, 1);
+
+    /* Tối ưu hiệu năng */
+    will-change: transform;
+}
+
+.home-banner .banner-slide {
+    flex: 0 0 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.home-banner .banner-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+}
+
+/* ===============================
+   HOME SECTION (BOOKS)
+=============================== */
+.home-section { margin: 22px 0; }
+.home-section h2 {
+    margin: 0 0 12px 0;
+    font-size: 1.3rem;
+}
+
+.product-info h4 {
+    margin: 8px 0;
+    font-size: .95rem;
+}
+
+.product-price {
+    font-weight: 600;
+    color: #111;
+}
+
+.discount {
+    color: #d44;
+    margin-left: 6px;
+    font-weight: 700;
+}
+
+/* ===============================
+   PREV / NEXT BUTTONS
+=============================== */
+.banner-prev,
+.banner-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+
+    color: #fff;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 5;
+    transition: background .25s ease;
+}
+.banner-prev { left: 12px; }
+.banner-next { right: 12px; }
+
+.banner-prev:hover,
+.banner-next:hover {
+    background: rgba(0,0,0,0.65);
+}
+
+/* ===============================
+   INDICATORS (DOTS)
+=============================== */
+.banner-indicators {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+
+    display: flex;
+    gap: 8px;
+    z-index: 6;
+}
+
+.banner-indicators .indicator {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    border: none;
+
+    cursor: pointer;
+    padding: 0;
+
+    transition: background .25s ease;
+}
+
+.banner-indicators .indicator.active {
+    background: var(--primary);
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+@media(max-width:900px){
+    .home-banner .banner-slide img { height: 180px; }
+}
+
+@media(max-width:600px){
+    .home-banner .banner-slide img { height: 140px; }
+}
+
+/* Rating stars */
+.product-rating { display:inline-block; margin-right:8px; vertical-align:middle }
+.product-rating .star { font-size:14px; margin-right:2px; color:#f0c040 }
+.product-rating .star-empty { color:#ddd }
+.product-rating .star-half { position:relative; color:#f0c040 }
+.product-rating .star-half::after { content:'☆'; position:absolute; left:0; color:#ddd }
+.product-rating-block { margin:8px 0; display:flex; align-items:center; gap:6px }
+.rating-number { font-weight:700; font-size:0.9rem; color:#333 }
+.rating-count { color:#666; font-size:0.85rem }
+
+/* Load more / hidden items */
+.product-item.hidden { display: none; }
+.load-more-wrap { text-align: center; margin-top: 12px }
+.btn.load-more { background: var(--primary); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer }
+.btn.load-more:hover { opacity: .95 }
+
+/* Category accordion styles */
+.category-accordion { border-radius:6px; background:#fff; padding:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.04) }
+.category-item { border-bottom:1px solid #f1f1f1 }
+.category-toggle { width:100%; text-align:left; padding:10px; background:none; border:0; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-weight:600 }
+.category-toggle .cat-caret { margin-left:8px; transform: rotate(0deg); transition: transform .2s }
+.category-toggle[aria-expanded="true"] .cat-caret { transform: rotate(90deg) }
+.subcategory-list { list-style:none; margin:0; padding:6px 10px 10px 14px }
+.subcategory-list li { padding:6px 0; display:flex; justify-content:space-between; align-items:center }
+.subcategory-list a { color:var(--primary); text-decoration:none }
+.sub-count { color:#666; font-size:0.85rem; margin-left:8px }
+
+/* If homepage removes the sidebar, make main container single column */
+.main-container.no-sidebar {
+    grid-template-columns: 1fr !important;
+    max-width: 1200px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+/* Ensure sidebar space removed looks good on mobile */
+@media(max-width: 992px) {
+    .main-container.no-sidebar { padding: 20px; }
+}

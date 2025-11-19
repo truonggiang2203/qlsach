@@ -543,6 +543,12 @@ img {
     color: var(--danger);
 }
 
+/* menu count style */
+.menu-count { color: rgba(0,0,0,0.6); font-size: 0.9rem; margin-left:6px }
+
+/* support click-to-open for dropdown (toggle .open) */
+.dropdown-trigger.open .dropdown-content { display: flex; }
+
 /* =========================================================
  🧱 4. BỐ CỤC CHUNG
 ========================================================= */
@@ -558,6 +564,8 @@ img {
     gap: 30px;
     padding: 30px 50px;
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 /* Sidebar */
