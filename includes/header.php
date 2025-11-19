@@ -9,6 +9,9 @@ require_once __DIR__ . '/../models/Category.php';
 $categoryModelNav = new Category();
 $parentCategoriesNav = $categoryModelNav->getAllParentCategories();
 $subCategoriesNav = $categoryModelNav->getAllSubCategories();
+// Counts to show number of books
+$countsByParent = $categoryModelNav->countBooksByParent();
+$countsBySub = $categoryModelNav->countBooksBySubcategory();
 
 // Lấy số lượng giỏ hàng từ session
 $cartCount = $_SESSION['cartCount'] ?? 0;
@@ -49,6 +52,13 @@ $notificationCount = $notificationModelNav->getUnreadCount();
            <?php if (strpos($_SERVER['REQUEST_URI'], 'search') !== false): ?>
                <link rel="stylesheet" href="/qlsach/public/css/search.css">
            <?php endif; ?>
+        <?php
+        // Load homepage-specific assets only on the homepage
+        $currentScript = basename($_SERVER['SCRIPT_NAME']);
+        if ($currentScript === 'index.php' || strpos($_SERVER['REQUEST_URI'], '/index.php') !== false): ?>
+            <link rel="stylesheet" href="/qlsach/public/css/home.css">
+            <script defer src="/qlsach/public/js/home.js"></script>
+        <?php endif; ?>
 </head>
 
 <body>
@@ -208,18 +218,21 @@ $notificationCount = $notificationModelNav->getUnreadCount();
             </a>
 
             <div class="dropdown-content">
-                <?php foreach ($parentCategoriesNav as $parent): ?>
-                    
+                <?php foreach ($parentCategoriesNav as $parent): 
+                    $parentCount = $countsByParent[$parent->id_loai] ?? 0;
+                ?>
+
                     <div class="dropdown-column">
                         <a href="/qlsach/public/search.php?category=<?= $parent->id_loai ?>" 
                            class="dropdown-header">
-                            <?= htmlspecialchars($parent->ten_loai) ?>
+                            <?= htmlspecialchars($parent->ten_loai) ?> <span class="menu-count">(<?= $parentCount ?>)</span>
                         </a>
 
                         <?php foreach ($subCategoriesNav as $sub): ?>
                             <?php if ($sub->id_loai == $parent->id_loai): ?>
+                                <?php $scnt = $countsBySub[$sub->id_the_loai] ?? 0; ?>
                                 <a href="/qlsach/public/search.php?subcategory=<?= $sub->id_the_loai ?>">
-                                    <?= htmlspecialchars($sub->ten_the_loai) ?>
+                                    <?= htmlspecialchars($sub->ten_the_loai) ?> <span class="menu-count">(<?= $scnt ?>)</span>
                                 </a>
                             <?php endif; ?>
                         <?php endforeach; ?>
@@ -234,3 +247,23 @@ $notificationCount = $notificationModelNav->getUnreadCount();
         <li><a href="/qlsach/public/search.php?hot=1">Bán Chạy</a></li>
     </ul>
 </nav>
+<script>
+// Toggle mega-menu on click for better mobile support
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.category-nav li.dropdown-trigger > a').forEach(a=>{
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            const parent = a.parentElement;
+            parent.classList.toggle('open');
+        });
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', function(e){
+        const openEl = document.querySelector('.category-nav li.dropdown-trigger.open');
+        if (!openEl) return;
+        if (e.target.closest('.category-nav')) return; // click inside
+        openEl.classList.remove('open');
+    });
+});
+</script>
