@@ -70,15 +70,13 @@ if (isset($_GET['action'])) {
     if ($action == 'delete') {
         try {
             
-            // 1. Kiểm tra xem có SÁCH nào đang dùng Thể Loại này không
-            $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM sach WHERE id_the_loai = ?");
+            // Kiểm tra trong bảng trung gian sach_theloai
+            $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM sach_theloai WHERE id_the_loai = ?");
             $stmt_check->execute([$id_the_loai]);
             
             if ($stmt_check->fetchColumn() > 0) {
-                // Nếu có, báo lỗi
                 $_SESSION['error_message'] = "Không thể xóa! Vẫn còn sách đang thuộc về Thể Loại này.";
             } else {
-                // Nếu không, tiến hành xóa
                 $stmt = $pdo->prepare("DELETE FROM the_loai WHERE id_the_loai = ?");
                 $stmt->execute([$id_the_loai]);
                 $_SESSION['success_message'] = "Xóa thể loại thành công!";
@@ -86,10 +84,9 @@ if (isset($_GET['action'])) {
             
             
         } catch (Exception $e) {
-            // Bắt lỗi (dù đã check, nhưng để an toàn)
             $_SESSION['error_message'] = "Lỗi khi xóa: " . $e->getMessage();
         }
-        header('Location: genres.php'); // Chuyển hướng để refresh
+        header('Location: genres.php');
         exit;
     }
 }

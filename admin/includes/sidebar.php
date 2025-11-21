@@ -22,8 +22,7 @@ $is_meta_page = (strpos($current_uri, '/admin/meta/') !== false);
 // Kiểm tra các trang Báo cáo
 $is_report_page = (strpos($current_uri, '/admin/reports/') !== false);
 
-// Kiểm tra các trang Cài đặt
-$is_settings_page = (strpos($current_uri, '/admin/settings/') !== false);
+
 
 ?>
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -212,18 +211,6 @@ $is_settings_page = (strpos($current_uri, '/admin/settings/') !== false);
                     </ul>
                 </li>
 
-                <li class="nav-header">CÀI ĐẶT</li>
-
-                <li class="nav-item <?php echo $is_settings_page ? 'menu-open' : ''; ?>">
-                    <a href="/qlsach/admin/settings/index.php" class="nav-link <?php echo $is_settings_page ? 'active' : ''; ?>"> <i class="nav-icon fas fa-cog"></i>
-                        <p>Cài Đặt Hệ Thống</p>
-                    </a>
-                </li>
-                 <li class="nav-item">
-                    <a href="/qlsach/admin/settings/payment.php" class="nav-link <?php echo (strpos($current_uri, '/admin/settings/payment.php') !== false) ? 'active' : ''; ?>"> <i class="nav-icon fas fa-credit-card"></i>
-                        <p>Phương Thức TT</p>
-                    </a>
-                </li>
 
                 <li class="nav-header">TÀI KHOẢN</li>
 
