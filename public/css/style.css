@@ -688,6 +688,84 @@ img {
     background: var(--primary-dark);
 }
 
+/* Wishlist Button on Product Item */
+.product-item-wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #ccc;
+    transition: all 0.2s;
+}
+
+.product-item-wishlist-btn:hover {
+    transform: scale(1.1);
+    color: var(--danger);
+    text-decoration: none;
+}
+
+.product-item-wishlist-btn.active {
+    color: var(--danger);
+    background: var(--white);
+}
+
+/* Product Rating Block */
+.product-rating-block {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.product-rating {
+    color: #f1c40f;
+    display: flex;
+}
+
+.star {
+    font-size: 16px;
+}
+
+.star-full {
+    color: #f1c40f;
+}
+
+.star-half {
+    color: #f1c40f;
+    opacity: 0.5;
+}
+
+.star-empty {
+    color: #ddd;
+}
+
+.rating-number {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.rating-count {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* Product Actions */
+.product-actions {
+    margin-top: auto;
+    padding-top: 10px;
+}
+
 /* =========================================================
  🛒 6. GIỎ HÀNG
 ========================================================= */
