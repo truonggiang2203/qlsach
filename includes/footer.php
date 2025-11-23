@@ -27,26 +27,12 @@
 </footer>
 
 </div>
-<!-- ===================== CHAT MESSENGER FULL ===================== -->
 
-<div id="chat-bubble">💬</div>
+<!-- ===================== CHATBOT WIDGET ===================== -->
+<link rel="stylesheet" href="/qlsach/public/css/chatbot.css">
+<script src="/qlsach/public/js/chatbot.js"></script>
 
-<div id="chatbot-box" style="display:none;">
-    <div id="chatbot-header">
-        <span>📚 ChatBot Hỗ Trợ</span>
-        <button id="chat-close">✖</button>
-    </div>
-
-    <div id="chatbot-messages"></div>
-
-    <div id="chatbot-input-area">
-        <input id="chatbot-input" placeholder="Nhập tin nhắn..." 
-               onkeydown="if(event.key==='Enter') sendMsg()">
-        <button id="chatbot-btn" onclick="sendMsg()">Gửi</button>
-    </div>
-</div>
-
-
+<!-- Old Chatbot Styles (Keep for compatibility) -->
 <style>
 /* Bong bóng bật chat */
 #chat-bubble {

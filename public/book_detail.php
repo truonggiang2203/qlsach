@@ -243,7 +243,7 @@ function getBookImagePath($id_sach) {
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                <div class="accordion-item" id="review-section">
                     <div class="accordion-header">
                         <h3>Đánh giá & Bình luận (<?= $rating_count ?>)</h3>
                         <button type="button" class="accordion-toggle">+</button>
@@ -683,6 +683,24 @@ function getBookImagePath($id_sach) {
                 }
             });
         });
+
+        // Tự động mở phần đánh giá nếu URL có #review-section
+        if (window.location.hash === '#review-section') {
+            const reviewSection = document.getElementById('review-section');
+            if (reviewSection) {
+                // Mở accordion
+                const content = reviewSection.querySelector('.accordion-content');
+                const toggle = reviewSection.querySelector('.accordion-toggle');
+                reviewSection.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+                toggle.textContent = "−";
+                
+                // Scroll đến phần đánh giá
+                setTimeout(() => {
+                    reviewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
     });
 </script>
 
