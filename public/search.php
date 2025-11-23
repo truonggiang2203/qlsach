@@ -2,10 +2,12 @@
 require_once '../includes/header.php';
 require_once '../models/Book.php';
 require_once '../models/Wishlist.php';
+require_once '../models/Comment.php';
 
 $bookModel = new Book();
 $categoryModel = new Category();
 $wishlistModel = new Wishlist();
+$commentModel = new Comment();
 
 $list_loai_sach = $categoryModel->getAllParentCategories();
 $list_the_loai = $categoryModel->getAllSubCategories();
@@ -23,7 +25,8 @@ if (isset($_SESSION['id_tk'])) {
     }
 }
 
-function getBookImagePath($id_sach) {
+function getBookImagePath($id_sach)
+{
     $imagePath = "/qlsach/public/uploads/" . $id_sach . ".jpg";
     $fullPath = __DIR__ . "/uploads/" . $id_sach . ".jpg";
     if (file_exists($fullPath)) {
@@ -32,7 +35,22 @@ function getBookImagePath($id_sach) {
     return "/qlsach/public/uploads/default-book.png";
 }
 
-function buildFilterUrl($overrides = [], $remove = []) {
+// Render stars HTML from average rating (e.g. 4.3)
+function renderStars($avg)
+{
+    $full = floor($avg);
+    $half = (($avg - $full) >= 0.5) ? 1 : 0;
+    $empty = 5 - $full - $half;
+    $html = '<div class="product-rating" aria-hidden="true">';
+    for ($i = 0; $i < $full; $i++) $html .= '<span class="star star-full">★</span>';
+    if ($half) $html .= '<span class="star star-half">★</span>';
+    for ($i = 0; $i < $empty; $i++) $html .= '<span class="star star-empty">☆</span>';
+    $html .= '</div>';
+    return $html;
+}
+
+function buildFilterUrl($overrides = [], $remove = [])
+{
     $params = $_GET;
     foreach ($remove as $key) {
         unset($params[$key]);
@@ -69,7 +87,7 @@ if ($has_discount) {
 $books = array_values($books);
 
 if (!empty($sort) && count($books) > 1) {
-    usort($books, function($a, $b) use ($sort) {
+    usort($books, function ($a, $b) use ($sort) {
         $priceA = $a->gia_sach_ban * (1 - ($a->phan_tram_km ?? 0) / 100);
         $priceB = $b->gia_sach_ban * (1 - ($b->phan_tram_km ?? 0) / 100);
         switch ($sort) {
@@ -98,9 +116,12 @@ if ($keyword) $selectedFilters[] = ['label' => "Từ khóa: \"$keyword\"", 'remo
 if ($id_loai) {
     $catName = '';
     foreach ($list_loai_sach as $cat) {
-        if ($cat->id_loai == $id_loai) { $catName = $cat->ten_loai; break; }
+        if ($cat->id_loai == $id_loai) {
+            $catName = $cat->ten_loai;
+            break;
+        }
     }
-    $selectedFilters[] = ['label' => "Loại: $catName", 'remove_url' => buildFilterUrl([], ['category','subcategory'])];
+    $selectedFilters[] = ['label' => "Loại: $catName", 'remove_url' => buildFilterUrl([], ['category', 'subcategory'])];
 }
 if ($id_the_loai) {
     foreach ($list_the_loai as $sub) {
@@ -120,6 +141,220 @@ $quickTags = ['Văn học', 'Kinh doanh', 'Tâm lý', 'Thiếu nhi', 'Self-help'
 ?>
 
 <div class="search-page">
+    <style>
+        /* Search product card styles (match book detail style) */
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .search-product-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(15, 32, 39, 0.06);
+            overflow: hidden;
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-product-card .product-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: #f8f8f8;
+        }
+
+        /* tăng chiều ngang card, giảm chiều cao ảnh */
+        .search-product-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(15, 32, 39, 0.06);
+            overflow: hidden;
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-product-card img.product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .product-item-wishlist-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 3;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 16px rgba(15, 32, 39, 0.06);
+        }
+
+        .product-item-wishlist-btn.active {
+            background: #fff;
+            color: #e74c3c;
+        }
+
+        .discount-badge {
+            position: relative;
+            /* Place it inline with the price */
+            display: inline-block;
+            /* Ensure it aligns properly */
+            margin-left: 10px;
+            /* Add spacing from the price */
+            background-color: #e0f7fa;
+            /* Light background for better visibility */
+            color: #00796b;
+            /* Complementary text color */
+            padding: 2px 6px;
+            /* Compact padding */
+            border-radius: 3px;
+            /* Slightly rounded corners */
+            font-size: 12px;
+            /* Adjust font size */
+            font-weight: bold;
+            /* Make the text stand out */
+        }
+
+        .search-product-card .product-info {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .search-product-card h4 {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.25;
+        }
+
+        .search-product-card h4 a {
+            color: #2277bb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .search-product-card .product-desc {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .price-info {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .price-current {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f4f84;
+        }
+
+        .price-original {
+            font-size: 13px;
+            color: #9aa3ad;
+            text-decoration: line-through;
+        }
+
+        .product-rating {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            color: #f1c40f;
+            font-size: 14px;
+        }
+
+        .product-rating .star-empty {
+            color: #ddd;
+        }
+
+        .product-rating-block {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .btn-primary {
+            background: #3b9adf;
+            border: none;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            border: 1px solid #e6e9ec;
+            padding: 8px 10px;
+            border-radius: 10px;
+            color: #333;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .category-tag,
+        .author-tag {
+            display: inline-block;
+            font-size: 12px;
+            color: #6b7a86;
+        }
+
+        /* Ensure image wrapper has correct layout */
+        .product-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: #f8f8f8;
+        }
+
+        /* Discount badge: inline style to display next to price */
+        .discount-badge {
+            display: inline-block;
+            margin-left: 8px;
+            background-color: #e0f7fa;
+            color: #00796b;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+    </style>
     <section class="search-hero">
         <div>
             <p>Tìm thấy</p>
@@ -267,70 +502,82 @@ $quickTags = ['Văn học', 'Kinh doanh', 'Tâm lý', 'Thiếu nhi', 'Self-help'
                 </div>
             <?php else: ?>
                 <div class="product-grid">
-                    <?php foreach ($books as $book): 
+                    <?php foreach ($books as $book):
                         $isWishlisted = isset($userWishlist[$book->id_sach]);
                         $gia_goc = $book->gia_sach_ban;
                         $phan_tram_km = $book->phan_tram_km ?? 0;
                         $gia_ban = $gia_goc * (1 - $phan_tram_km / 100);
                         $stock = (int)($book->so_luong_ton ?? 0);
                     ?>
-                        <div class="search-product-card">
-                            <div class="product-image-wrapper">
-                                <?php if (isset($_SESSION['id_tk'])): ?>
-                                    <a href="#" 
-                                       class="product-item-wishlist-btn <?= $isWishlisted ? 'active' : '' ?>"
-                                       data-book-id="<?= $book->id_sach ?>"
-                                       title="<?= $isWishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích' ?>">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="<?= $isWishlisted ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                        </svg>
-                                    </a>
-                                <?php else: ?>
-                                    <a href="/qlsach/guest/login.php" class="product-item-wishlist-btn" title="Đăng nhập để thêm vào yêu thích">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                        </svg>
-                                    </a>
-                                <?php endif; ?>
-                                <a href="book_detail.php?id_sach=<?= $book->id_sach ?>">
-                                    <img src="<?= getBookImagePath($book->id_sach) ?>" alt="<?= htmlspecialchars($book->ten_sach) ?>">
+                        <div class="product-item">
+                            <?php if (isset($_SESSION['id_tk'])): ?>
+                                <a href="#"
+                                    class="product-item-wishlist-btn <?= $isWishlisted ? 'active' : '' ?>"
+                                    data-book-id="<?= $book->id_sach ?>"
+                                    title="<?= $isWishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích' ?>">
+                                    <svg width="20" height="20" viewBox="0 0 24 24"
+                                        fill="<?= $isWishlisted ? 'currentColor' : 'none' ?>"
+                                        stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                         a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                         1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
                                 </a>
-                                <?php if ($phan_tram_km > 0): ?>
-                                    <span class="discount-badge">-<?= $phan_tram_km ?>%</span>
-                                <?php endif; ?>
-                            </div>
+                            <?php else: ?>
+                                <a href="/qlsach/guest/login.php"
+                                    class="product-item-wishlist-btn"
+                                    title="Đăng nhập để thêm vào yêu thích">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                         a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                         1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                </a>
+                            <?php endif; ?>
+
+                            <a href="book_detail.php?id_sach=<?= $book->id_sach ?>">
+                                <img src="<?= getBookImagePath($book->id_sach) ?>"
+                                    alt="<?= htmlspecialchars($book->ten_sach) ?>">
+                            </a>
+
                             <div class="product-info">
-                                <div class="product-meta">
-                                    <span class="category-tag"><?= htmlspecialchars($book->ten_loai ?? 'Chưa phân loại') ?></span>
-                                    <?php if (!empty($book->ten_tac_gia)): ?>
-                                        <span class="author-tag"><?= htmlspecialchars($book->ten_tac_gia) ?></span>
+                                <h4>
+                                    <a href="book_detail.php?id_sach=<?= $book->id_sach ?>">
+                                        <?= htmlspecialchars($book->ten_sach) ?>
+                                    </a>
+                                </h4>
+
+                                <div class="product-price">
+                                    <?php if ($phan_tram_km > 0): ?>
+                                        <?= number_format($gia_ban, 0, ',', '.') ?>đ
+                                        <span class="discount">-<?= $phan_tram_km ?>%</span>
+                                    <?php else: ?>
+                                        <?= number_format($gia_goc, 0, ',', '.') ?>đ
                                     <?php endif; ?>
                                 </div>
-                                <h4>
-                                    <a href="book_detail.php?id_sach=<?= $book->id_sach ?>"><?= htmlspecialchars($book->ten_sach) ?></a>
-                                </h4>
-                                <p class="product-desc"><?= htmlspecialchars(mb_strimwidth($book->mo_ta ?? 'Chưa có mô tả', 0, 120, '...')) ?></p>
-                                <div class="product-price-row">
-                                    <div class="price-info">
-                                        <span class="price-current"><?= number_format($gia_ban, 0, ',', '.') ?>đ</span>
-                                        <?php if ($phan_tram_km > 0): ?>
-                                            <span class="price-original"><?= number_format($gia_goc, 0, ',', '.') ?>đ</span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <span class="stock-status <?= $stock > 0 ? 'in-stock' : 'out-stock' ?>">
-                                        <?= $stock > 0 ? 'Còn ' . $stock . ' quyển' : 'Hết hàng' ?>
-                                    </span>
+
+                                <?php $rating = $commentModel->getAverageRating($book->id_sach); ?>
+                                <div class="product-rating-block">
+                                    <?= renderStars($rating['average']) ?>
+                                    <?php if ($rating['count'] > 0): ?>
+                                        <span class="rating-number"><?= $rating['average'] ?></span>
+                                        <span class="rating-count">(<?= $rating['count'] ?>)</span>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="search-card-actions">
-                                    <form action="../controllers/cartController.php?action=add" method="POST">
+
+                                <div class="product-actions">
+                                    <form action="../controllers/cartController.php?action=add" method="POST" style="flex:1;">
                                         <input type="hidden" name="id_sach" value="<?= $book->id_sach ?>">
                                         <input type="hidden" name="so_luong" value="1">
-                                        <button type="submit" class="btn-primary" <?= $stock <= 0 ? 'disabled' : '' ?>>🛒 Thêm vào giỏ</button>
+                                        <button type="submit" class="btn">🛒 Thêm vào giỏ</button>
                                     </form>
-                                    <a href="book_detail.php?id_sach=<?= $book->id_sach ?>" class="btn-outline">Chi tiết</a>
                                 </div>
                             </div>
                         </div>
+
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>

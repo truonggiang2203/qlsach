@@ -1,11 +1,25 @@
 <?php
-require_once __DIR__ . '/../includes/header.php'; 
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../models/Cart.php';
 
 $cartModel = new Cart();
 $cartItems = $cartModel->getItems();
 $cartIsEmpty = empty($cartItems);
 $isLoggedIn = isset($_SESSION['id_tk']);
+function getBookImageCart($id_sach)
+{
+    $base = "/qlsach/public/uploads/";
+    $full = __DIR__ . "/../public/uploads/";
+    $exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+    foreach ($exts as $ext) {
+        if (file_exists($full . $id_sach . "." . $ext)) {
+            return $base . $id_sach . "." . $ext;
+        }
+    }
+    return $base . "default-book.png";
+}
+
 
 // Tính tổng tiền ban đầu
 $totals = $cartModel->calculateTotals();
@@ -65,7 +79,7 @@ $totals = $cartModel->calculateTotals();
                         </div>
 
                         <div class="cart-items-list">
-                            <?php foreach ($cartItems as $item): 
+                            <?php foreach ($cartItems as $item):
                                 $discountPercent = $item['discount_percent'] ?? 0;
                                 $discountedPrice = $item['price'] * (1 - $discountPercent / 100);
                                 $discountedSubtotal = $discountedPrice * $item['quantity'];
@@ -73,17 +87,18 @@ $totals = $cartModel->calculateTotals();
                             ?>
                                 <div class="cart-item" id="cart-item-<?= $item['id_sach'] ?>">
                                     <div class="cart-item-checkbox">
-                                        <input type="checkbox" 
-                                               class="cart-item-select"
-                                               name="selected_items[]"
-                                               value="<?= $item['id_sach'] ?>"
-                                               checked>
+                                        <input type="checkbox"
+                                            class="cart-item-select"
+                                            name="selected_items[]"
+                                            value="<?= $item['id_sach'] ?>"
+                                            checked>
                                     </div>
 
                                     <div class="cart-item-image">
                                         <a href="/qlsach/public/book_detail.php?id_sach=<?= $item['id_sach'] ?>">
-                                            <img src="<?= htmlspecialchars($item['image'] ?: 'https://via.placeholder.com/150x200?text=' . urlencode($item['name'])) ?>" 
-                                                 alt="<?= htmlspecialchars($item['name']) ?>">
+                                            <img src="<?= getBookImageCart($item['id_sach']) ?>"
+                                                alt="<?= htmlspecialchars($item['name']) ?>">
+
                                         </a>
                                     </div>
 
@@ -124,25 +139,25 @@ $totals = $cartModel->calculateTotals();
 
                                     <div class="cart-item-quantity">
                                         <div class="quantity-controls">
-                                            <button type="button" 
-                                                    class="qty-btn qty-decrease" 
-                                                    data-id="<?= $item['id_sach'] ?>"
-                                                    <?= $item['quantity'] <= 1 ? 'disabled' : '' ?>>
+                                            <button type="button"
+                                                class="qty-btn qty-decrease"
+                                                data-id="<?= $item['id_sach'] ?>"
+                                                <?= $item['quantity'] <= 1 ? 'disabled' : '' ?>>
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                                 </svg>
                                             </button>
-                                            <input type="number" 
-                                                   class="qty-input"
-                                                   data-id="<?= $item['id_sach'] ?>"
-                                                   value="<?= $item['quantity'] ?>"
-                                                   min="1"
-                                                   max="<?= $item['stock'] ?>"
-                                                   readonly>
-                                            <button type="button" 
-                                                    class="qty-btn qty-increase" 
-                                                    data-id="<?= $item['id_sach'] ?>"
-                                                    <?= $item['quantity'] >= $item['stock'] ? 'disabled' : '' ?>>
+                                            <input type="number"
+                                                class="qty-input"
+                                                data-id="<?= $item['id_sach'] ?>"
+                                                value="<?= $item['quantity'] ?>"
+                                                min="1"
+                                                max="<?= $item['stock'] ?>"
+                                                readonly>
+                                            <button type="button"
+                                                class="qty-btn qty-increase"
+                                                data-id="<?= $item['id_sach'] ?>"
+                                                <?= $item['quantity'] >= $item['stock'] ? 'disabled' : '' ?>>
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -166,10 +181,10 @@ $totals = $cartModel->calculateTotals();
                                     </div>
 
                                     <div class="cart-item-actions">
-                                        <button type="button" 
-                                                class="btn-remove-item" 
-                                                onclick="removeItem('<?= $item['id_sach'] ?>', '<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>')"
-                                                title="Xóa sản phẩm">
+                                        <button type="button"
+                                            class="btn-remove-item"
+                                            onclick="removeItem('<?= $item['id_sach'] ?>', '<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>')"
+                                            title="Xóa sản phẩm">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <polyline points="3 6 5 6 21 6"></polyline>
                                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -185,22 +200,22 @@ $totals = $cartModel->calculateTotals();
                     <div class="cart-summary-section">
                         <div class="cart-summary-card">
                             <h3 class="summary-title">Tóm tắt đơn hàng</h3>
-                            
+
                             <div class="summary-details">
                                 <div class="summary-row">
                                     <span>Tạm tính:</span>
                                     <span id="cart-subtotal"><?= number_format($totals['subtotal'], 0, ',', '.') ?> đ</span>
                                 </div>
-                                
+
                                 <?php if ($totals['totalDiscount'] > 0): ?>
                                     <div class="summary-row summary-discount">
                                         <span>Giảm giá:</span>
                                         <span id="cart-discount">-<?= number_format($totals['totalDiscount'], 0, ',', '.') ?> đ</span>
                                     </div>
                                 <?php endif; ?>
-                                
+
                                 <div class="summary-divider"></div>
-                                
+
                                 <div class="summary-row summary-total">
                                     <span>Tổng cộng:</span>
                                     <span id="cart-total" class="total-amount"><?= number_format($totals['total'], 0, ',', '.') ?> đ</span>
@@ -223,7 +238,7 @@ $totals = $cartModel->calculateTotals();
                                         Đăng nhập để thanh toán
                                     </a>
                                 <?php endif; ?>
-                                
+
                                 <a href="/qlsach/public/index.php" class="btn-continue">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M19 12H5M12 19l-7-7 7-7"></path>

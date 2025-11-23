@@ -2102,11 +2102,6 @@ input[type="checkbox"] {
     transition: all 0.3s;
 }
 
-.btn-view-detail:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(93, 162, 213, 0.3);
-}
 
 /* Responsive */
 @media (max-width: 1024px) {
@@ -2155,4 +2150,10 @@ input[type="checkbox"] {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
+}
+/* Thu nhỏ cột "Thông tin" vừa đủ theo kích thước ảnh */
+.compare-table th:first-child,
+.compare-table td:first-child {
+    width: 220px !important;
+    min-width: 220px !important;
 }
