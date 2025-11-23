@@ -19,7 +19,7 @@ $totalAuthors = count($authors);
 
 <link rel="stylesheet" href="<?= rtrim(dirname($_SERVER['PHP_SELF']), '/\\') ?>/css/authors.css">
 
-<div class="authors-page">
+<div class="authors-page full-width-authors">
     <!-- Hero Section -->
     <section class="authors-hero">
         <div class="authors-hero-content">

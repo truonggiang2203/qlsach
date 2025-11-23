@@ -246,7 +246,7 @@ $notificationCount = $notificationModelNav->getUnreadCount();
         <li><a href="/qlsach/public/search.php?new=1">Sách Mới</a></li>
         <li><a href="/qlsach/public/search.php?hot=1">Bán Chạy</a></li>
         <li><a href="/qlsach/public/authors.php">Tác Giả</a></li>
-        <li><a href="/qlsach/public/blog.php">📰 Blog</a></li>
+        <li><a href="/qlsach/public/blog.php">Blog</a></li>
     </ul>
 </nav>
 <script>
