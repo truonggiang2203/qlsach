@@ -61,7 +61,8 @@ class Book {
                     GROUP_CONCAT(DISTINCT tl.ten_the_loai SEPARATOR ', ') AS danh_sach_the_loai,
                     
                     -- === THÊM MỚI: Gộp các tác giả thành 1 chuỗi ===
-                    GROUP_CONCAT(DISTINCT tg.ten_tac_gia SEPARATOR ', ') AS ten_tac_gia
+                    GROUP_CONCAT(DISTINCT tg.ten_tac_gia SEPARATOR ', ') AS ten_tac_gia,
+                    GROUP_CONCAT(DISTINCT tg.id_tac_gia SEPARATOR ', ') AS id_tac_gia
                     
                 FROM sach s
                 

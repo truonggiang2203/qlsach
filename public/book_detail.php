@@ -95,7 +95,27 @@ function getBookImagePath($id_sach) {
             <h1><?= htmlspecialchars($book->ten_sach) ?></h1>
 
             <div class="product-meta-info">
-                <p><b>Tác giả:</b> <?= htmlspecialchars($book->ten_tac_gia ?? 'Không rõ') ?></p>
+                <p>
+                    <b>Tác giả:</b> 
+                    <?php if (!empty($book->ten_tac_gia) && !empty($book->id_tac_gia)): ?>
+                        <?php 
+                        $authors = explode(', ', $book->ten_tac_gia);
+                        $authorIds = explode(', ', $book->id_tac_gia);
+                        $authorLinks = [];
+                        foreach ($authors as $index => $authorName) {
+                            $authorId = $authorIds[$index] ?? '';
+                            if ($authorId) {
+                                $authorLinks[] = '<a href="author_detail.php?id=' . htmlspecialchars($authorId) . '" style="color: var(--primary); text-decoration: none; font-weight: 600;">' . htmlspecialchars($authorName) . '</a>';
+                            } else {
+                                $authorLinks[] = htmlspecialchars($authorName);
+                            }
+                        }
+                        echo implode(', ', $authorLinks);
+                        ?>
+                    <?php else: ?>
+                        Không rõ
+                    <?php endif; ?>
+                </p>
                 <p><b>Nhà xuất bản:</b> <?= htmlspecialchars($book->ten_nxb ?? 'Không rõ') ?></p>
                 <p><b>Thể loại:</b> <?= htmlspecialchars($book->danh_sach_the_loai ?? 'Chưa phân loại') ?></p>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">

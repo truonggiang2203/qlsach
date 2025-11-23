@@ -1,0 +1,326 @@
+/* =========================================================
+   ✍️ AUTHOR PAGE - Trang chi tiết tác giả
+========================================================= */
+
+.author-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+}
+
+/* Author Hero Section */
+.author-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: var(--white);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.author-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.author-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-icon {
+    font-size: 4rem;
+}
+
+.author-info {
+    flex: 1;
+}
+
+.author-label {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.author-info h1 {
+    margin: 5px 0 15px 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.author-stats {
+    display: flex;
+    gap: 30px;
+    font-size: 1rem;
+}
+
+.author-stats span {
+    opacity: 0.95;
+}
+
+.author-stats strong {
+    font-size: 1.3rem;
+    margin-right: 5px;
+}
+
+/* Author Bio Section */
+.author-bio {
+    margin-bottom: 40px;
+}
+
+.bio-card {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+.bio-card h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: 700;
+    border-bottom: 2px solid var(--light-bg);
+    padding-bottom: 15px;
+}
+
+.bio-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 15px;
+}
+
+.bio-note {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    margin: 0;
+}
+
+/* Author Details */
+.author-details {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.detail-item strong {
+    color: var(--primary);
+    font-size: 0.95rem;
+}
+
+.detail-item span {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Author Social Links */
+.author-social {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.author-social > strong {
+    display: block;
+    color: var(--primary);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.social-link:hover {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 162, 213, 0.3);
+}
+
+.social-link svg {
+    flex-shrink: 0;
+}
+
+/* Books Section */
+.author-books {
+    margin-bottom: 40px;
+}
+
+.section-header {
+    margin-bottom: 25px;
+}
+
+.section-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 1.8rem;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.section-header p {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.empty-state .btn-primary {
+    background: var(--primary);
+    color: var(--white);
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.empty-state .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 162, 213, 0.3);
+}
+
+/* Product Grid - Sử dụng style từ trang chủ */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .author-page {
+        padding: 20px 15px 40px;
+    }
+
+    .author-hero {
+        padding: 25px 20px;
+    }
+
+    .author-hero-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .author-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .avatar-icon {
+        font-size: 3rem;
+    }
+
+    .author-info h1 {
+        font-size: 1.8rem;
+    }
+
+    .author-stats {
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .bio-card {
+        padding: 20px;
+    }
+
+    .bio-card h2 {
+        font-size: 1.3rem;
+    }
+
+    .author-details {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .social-links {
+        flex-direction: column;
+    }
+
+    .social-link {
+        justify-content: center;
+    }
+
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .author-info h1 {
+        font-size: 1.5rem;
+    }
+
+    .author-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
