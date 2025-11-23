@@ -43,6 +43,15 @@ class Comment {
         }
     }
 
+    // 🔍 Kiểm tra ID bình luận đã tồn tại chưa
+    public function commentExists($id_bl) {
+        $sql = "SELECT COUNT(*) as count FROM binh_luan WHERE id_bl = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id_bl]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result && $result['count'] > 0;
+    }
+
     // 🧾 Thêm bình luận mới
     public function addComment($id_bl, $id_sach, $id_tk, $binh_luan, $so_sao) {
         // Kiểm tra xem bảng có cột id_tk không
@@ -167,28 +176,27 @@ class Comment {
 
     // 🛒 Kiểm tra user đã mua sách chưa (đơn hàng đã hoàn thành)
     public function hasUserPurchasedBook($id_sach, $id_tk) {
-        // Kiểm tra xem có bảng don_hang và chi_tiet_don_hang không
-        $hasDonHang = $this->checkColumnExists('don_hang', 'id_tk');
-        
-        if (!$hasDonHang) {
-            // Nếu không có bảng đơn hàng, cho phép tất cả user đã đăng nhập đánh giá
-            return true;
-        }
-        
         // Kiểm tra user có đơn hàng đã hoàn thành (id_trang_thai = 4) chứa sách này không
         $sql = "SELECT COUNT(*) as count
                 FROM chi_tiet_don_hang ct
                 JOIN don_hang dh ON ct.id_don_hang = dh.id_don_hang
                 WHERE ct.id_sach = ? 
                 AND dh.id_tk = ?
-                AND dh.id_trang_thai = 4
-                LIMIT 1";
+                AND dh.id_trang_thai = 4";
         
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$id_sach, $id_tk]);
-        $result = $stmt->fetch();
-        
-        return $result && $result->count > 0;
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id_sach, $id_tk]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Debug log (có thể xóa sau khi test xong)
+            error_log("Check review permission - Sách: $id_sach, User: $id_tk, Count: " . ($result['count'] ?? 0));
+            
+            return $result && $result['count'] > 0;
+        } catch (PDOException $e) {
+            error_log("Error checking purchase: " . $e->getMessage());
+            return false;
+        }
     }
 
     // 🛒 Kiểm tra user có đơn hàng đang xử lý chứa sách này không (chưa hoàn thành)

@@ -122,6 +122,42 @@ switch ($action) {
         break;
 
     /* =====================================================
+       🔑 ĐỔI MẬT KHẨU
+    ===================================================== */
+    case 'change_password':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['id_tk'])) {
+            $id_tk = $_SESSION['id_tk'];
+            $old_password = $_POST['old_password'] ?? '';
+            $new_password = $_POST['new_password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
+            
+            // Validate
+            if (empty($old_password) || empty($new_password) || empty($confirm_password)) {
+                header('Location: ../user/change_password.php?error=empty_fields');
+                exit;
+            }
+            
+            if ($new_password !== $confirm_password) {
+                header('Location: ../user/change_password.php?error=password_mismatch');
+                exit;
+            }
+            
+            if (strlen($new_password) < 6) {
+                header('Location: ../user/change_password.php?error=password_short');
+                exit;
+            }
+            
+            // Đổi mật khẩu
+            if ($userModel->changePassword($id_tk, $old_password, $new_password)) {
+                header('Location: ../user/change_password.php?success=changed');
+            } else {
+                header('Location: ../user/change_password.php?error=wrong_password');
+            }
+        }
+        exit;
+        break;
+
+    /* =====================================================
        MẶC ĐỊNH
     ===================================================== */
     default:

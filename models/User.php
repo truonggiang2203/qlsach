@@ -122,5 +122,35 @@ class User {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$hashed_new, $id_tk]);
     }
+
+    /* =====================================================
+       🔍 LẤY USER THEO EMAIL (cho Google Login)
+    ===================================================== */
+    public function getUserByEmail($email) {
+        $sql = "SELECT * FROM tai_khoan WHERE email = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    /* =====================================================
+       📝 TẠO TÀI KHOẢN TỪ GOOGLE
+    ===================================================== */
+    public function createGoogleUser($id_tk, $ho_ten, $email, $hashed_password, $avatar_url = null) {
+        $id_nd_khach_hang = 'KH';
+        
+        $sql = "INSERT INTO tai_khoan 
+                (id_tk, id_nd, ho_ten, email, sdt, mat_khau, dia_chi_giao_hang, ngay_gio_tao_tk, gioi_tinh) 
+                VALUES (?, ?, ?, ?, '', ?, '', NOW(), 'Khác')";
+
+        $stmt = $this->db->prepare($sql);
+
+        try {
+            return $stmt->execute([$id_tk, $id_nd_khach_hang, $ho_ten, $email, $hashed_password]);
+        } catch (PDOException $e) {
+            error_log("Google Register Error: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?>

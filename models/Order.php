@@ -194,10 +194,47 @@ class Order {
      *Hủy đơn hàng
      */
     public function cancelOrder($id_don_hang) {
-        // TODO: Thêm logic khôi phục tồn kho (restoreStock)
-        $sql = "UPDATE don_hang SET id_trang_thai = 5 WHERE id_don_hang = ?";
+        try {
+            $this->db->beginTransaction();
+            
+            // 1. Lấy chi tiết đơn hàng
+            $sql = "SELECT id_sach, so_luong_ban FROM chi_tiet_don_hang WHERE id_don_hang = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id_don_hang]);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // 2. Khôi phục tồn kho cho từng sản phẩm
+            foreach ($items as $item) {
+                $sql = "UPDATE sach SET so_luong_ton = so_luong_ton + ? WHERE id_sach = ?";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([$item['so_luong_ban'], $item['id_sach']]);
+            }
+            
+            // 3. Cập nhật trạng thái đơn hàng = 5 (Đã hủy)
+            $sql = "UPDATE don_hang SET id_trang_thai = 5 WHERE id_don_hang = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id_don_hang]);
+            
+            $this->db->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            error_log("Cancel Order Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Lấy timeline trạng thái đơn hàng
+     */
+    public function getOrderTimeline($id_don_hang) {
+        $sql = "SELECT dh.id_trang_thai, ttdh.trang_thai_dh, dh.ngay_gio_tao_don
+                FROM don_hang dh
+                JOIN trang_thai_don_hang ttdh ON dh.id_trang_thai = ttdh.id_trang_thai
+                WHERE dh.id_don_hang = ?";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$id_don_hang]);
+        $stmt->execute([$id_don_hang]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 ?>

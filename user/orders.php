@@ -186,6 +186,12 @@ if (isset($_GET['cancel'])) {
                         </div>
                     </div>
 
+                    <!-- Timeline Trạng Thái -->
+                    <div class="panel-section">
+                        <h4>🚚 Trạng thái đơn hàng</h4>
+                        <div class="order-timeline" id="orderTimeline"></div>
+                    </div>
+
                     <div class="panel-section">
                         <h4>Sản phẩm</h4>
                         <div class="panel-items" id="panelItems"></div>
@@ -242,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const panelPaymentStatus = document.getElementById('panelPaymentStatus');
     const panelPaymentTime = document.getElementById('panelPaymentTime');
     const panelCancelBtn = document.getElementById('panelCancelBtn');
+    const orderTimeline = document.getElementById('orderTimeline');
     const detailPanel = document.getElementById('orderDetailPanel');
     let activeRow = null;
 
@@ -259,10 +266,22 @@ document.addEventListener('DOMContentLoaded', function() {
         panelAddress.textContent = data.address;
         panelTotal.textContent = data.total;
 
+        // Render Timeline
+        renderTimeline(data.status_badge.text);
+
         panelItems.innerHTML = '';
         data.items.forEach(function(item) {
             const div = document.createElement('div');
             div.className = 'panel-item';
+            
+            // Kiểm tra nếu đơn hàng đã hoàn thành thì hiện nút đánh giá
+            const isCompleted = data.status_badge.text === 'Đã hoàn thành';
+            const reviewButton = isCompleted ? `
+                <a href="${item.link}#review-section" class="btn-review-product" title="Đánh giá sản phẩm">
+                    ⭐ Đánh giá
+                </a>
+            ` : '';
+            
             div.innerHTML = `
                 <div class="panel-item-image">
                     <img src="${item.image}" alt="${item.title}">
@@ -273,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span>Số lượng: <strong>${item.quantity}</strong></span>
                         <span>Giá: <strong>${item.price}</strong></span>
                     </div>
+                    ${reviewButton}
                 </div>
                 <div class="panel-item-total">${item.total}</div>
             `;
@@ -291,6 +311,53 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             panelCancelBtn.classList.add('hidden');
         }
+    }
+
+    function renderTimeline(currentStatus) {
+        const statuses = [
+            { name: 'Chờ xử lý', icon: '⏳' },
+            { name: 'Đã xác nhận', icon: '✓' },
+            { name: 'Đang giao hàng', icon: '🚚' },
+            { name: 'Đã hoàn thành', icon: '✅' }
+        ];
+
+        // Nếu đơn hàng bị hủy
+        if (currentStatus === 'Đã hủy') {
+            orderTimeline.innerHTML = `
+                <div class="timeline-item current">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h5>❌ Đã hủy</h5>
+                        <p>Đơn hàng đã bị hủy</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let currentIndex = statuses.findIndex(s => s.name === currentStatus);
+        let html = '';
+
+        statuses.forEach((status, index) => {
+            let itemClass = 'timeline-item';
+            if (index < currentIndex) {
+                itemClass += ' active';
+            } else if (index === currentIndex) {
+                itemClass += ' current';
+            }
+
+            html += `
+                <div class="${itemClass}">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h5>${status.icon} ${status.name}</h5>
+                        <p>${index <= currentIndex ? 'Đã hoàn thành' : 'Chưa thực hiện'}</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        orderTimeline.innerHTML = html;
     }
 
     function handleSelectRow(row) {

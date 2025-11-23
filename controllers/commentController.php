@@ -41,13 +41,13 @@ switch ($action) {
                 $so_sao = 5;
             }
 
-            // ✅ KIỂM TRA ĐIỀU KIỆN: User phải đã mua sách (đơn hàng đã hoàn thành)
+            // ✅ KIỂM TRA ĐIỀU KIỆN: User phải có đơn hàng trạng thái 4 (Đã hoàn thành)
             if (!$commentModel->hasUserPurchasedBook($id_sach, $id_tk)) {
                 if ($isAjax) {
                     header('Content-Type: application/json');
                     echo json_encode([
                         'success' => false, 
-                        'message' => 'Bạn chỉ có thể đánh giá sách sau khi đã mua và nhận được sách. Vui lòng mua sách trước!'
+                        'message' => 'Bạn chỉ có thể đánh giá sách sau khi đơn hàng đã hoàn thành (trạng thái: Đã hoàn thành)'
                     ]);
                     exit;
                 }
@@ -63,8 +63,16 @@ switch ($action) {
                 $result = $commentModel->updateComment($id_bl, $id_tk, $binh_luan, $so_sao);
                 $message = $result ? 'Cập nhật bình luận thành công!' : 'Cập nhật bình luận thất bại!';
             } else {
-                // Thêm bình luận mới
-                $id_bl = 'BL' . time() . rand(10, 99);
+                // Thêm bình luận mới - Tạo ID unique
+                $id_bl = 'BL' . substr(uniqid(), -5) . rand(10, 99);
+                
+                // Kiểm tra ID đã tồn tại chưa, nếu có thì tạo lại
+                $attempts = 0;
+                while ($commentModel->commentExists($id_bl) && $attempts < 5) {
+                    $id_bl = 'BL' . substr(uniqid(), -5) . rand(10, 99);
+                    $attempts++;
+                }
+                
                 $result = $commentModel->addComment($id_bl, $id_sach, $id_tk, $binh_luan, $so_sao);
                 $message = $result ? 'Thêm bình luận thành công!' : 'Thêm bình luận thất bại!';
             }
