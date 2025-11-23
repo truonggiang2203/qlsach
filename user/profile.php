@@ -252,9 +252,9 @@ function formatCurrency($number) {
             <div class="profile-card quick-links-card">
                 <h3>Liên kết nhanh</h3>
                 <ul>
-                    <li><a href="/qlsach/public/index.php">📚 Khám phá sách mới</a></li>
-                    <li><a href="/qlsach/user/wishlist.php">❤️ Danh sách yêu thích</a></li>
-                    <li><a href="/qlsach/user/notifications.php">🔔 Trung tâm thông báo</a></li>
+                    <li><a href="/qlsach/public/index.php">Khám phá sách mới</a></li>
+                    <li><a href="/qlsach/user/wishlist.php">Danh sách yêu thích</a></li>
+                    <li><a href="/qlsach/user/notifications.php">Trung tâm thông báo</a></li>
                 </ul>
             </div>
         </aside>
