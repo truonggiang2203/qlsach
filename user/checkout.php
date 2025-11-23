@@ -12,6 +12,21 @@ if (!isset($_SESSION['id_tk'])) {
 $cartModel = new Cart();
 $bookModel = new Book();
 $fullCart = $cartModel->getItems();
+function getBookImageCheckout($id_sach)
+{
+    $base = "/qlsach/public/uploads/";
+    $full = __DIR__ . "/../public/uploads/";
+    $exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+    foreach ($exts as $ext) {
+        if (file_exists($full . $id_sach . "." . $ext)) {
+            return $base . $id_sach . "." . $ext;
+        }
+    }
+
+    return $base . "default-book.png";
+}
+
 
 // Xử lý lọc sản phẩm đã chọn
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
@@ -29,11 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
         }
     }
     $_SESSION['checkout_cart'] = $checkoutCart;
-} 
-else if (isset($_SESSION['checkout_cart'])) {
+} else if (isset($_SESSION['checkout_cart'])) {
     $checkoutCart = $_SESSION['checkout_cart'];
-} 
-else {
+} else {
     echo "<script>alert('Giỏ hàng trống hoặc phiên đã hết hạn!'); window.location.href='cart.php';</script>";
     exit;
 }
@@ -53,14 +66,14 @@ foreach ($checkoutCart as $id_sach => $item) {
     $price = $item['price'];
     $quantity = $item['quantity'];
     $discount_percent = $item['discount_percent'] ?? 0;
-    
+
     $originalPrice = $price * $quantity;
     $discountAmount = ($price * $discount_percent / 100) * $quantity;
     $finalPrice = $originalPrice - $discountAmount;
-    
+
     $subtotal += $originalPrice;
     $totalDiscount += $discountAmount;
-    
+
     $items[] = [
         'book' => $book,
         'item' => $item,
@@ -79,7 +92,7 @@ $total = $subtotal - $totalDiscount;
     <div class="checkout-header">
         <h2>💳 Thanh toán đơn hàng</h2>
         <p style="color: #666; margin-top: 8px;">Vui lòng kiểm tra thông tin đơn hàng và thanh toán</p>
-        
+
         <div class="checkout-steps">
             <div class="checkout-step">
                 <div class="checkout-step-number">1</div>
@@ -108,17 +121,17 @@ $total = $subtotal - $totalDiscount;
                     </svg>
                     Thông tin giao hàng
                 </h3>
-                
+
                 <div class="form-group">
                     <label>Họ tên người nhận:</label>
                     <input type="text" value="<?= htmlspecialchars($_SESSION['ho_ten'] ?? 'Chưa cập nhật') ?>" disabled>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Số điện thoại:</label>
                     <input type="text" value="<?= htmlspecialchars($_SESSION['sdt'] ?? 'Chưa cập nhật') ?>" disabled>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Địa chỉ nhận hàng <span style="color: var(--danger);">*</span>:</label>
                     <textarea name="dia_chi" placeholder="Nhập địa chỉ cụ thể (số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố)" required><?= htmlspecialchars($_SESSION['dia_chi'] ?? '') ?></textarea>
@@ -134,7 +147,7 @@ $total = $subtotal - $totalDiscount;
                     </svg>
                     Phương thức thanh toán
                 </h3>
-                
+
                 <div class="payment-methods">
                     <!-- COD -->
                     <label class="payment-method selected" data-payment="PT001">
@@ -196,13 +209,16 @@ $total = $subtotal - $totalDiscount;
                 </h3>
 
                 <div class="order-items">
-                    <?php foreach ($items as $itemData): 
+                    <?php foreach ($items as $itemData):
                         $book = $itemData['book'];
                         $item = $itemData['item'];
-                        $imageUrl = !empty($book->hinh_anh) ? $book->hinh_anh : 'https://via.placeholder.com/100x150?text=' . urlencode($book->ten_sach);
+                        $imageUrl = getBookImageCheckout($book->id_sach);
                     ?>
                         <div class="order-item">
-                            <img src="<?= htmlspecialchars($imageUrl) ?>" alt="<?= htmlspecialchars($book->ten_sach) ?>" class="order-item-image">
+                            <img src="<?= htmlspecialchars($imageUrl) ?>"
+                                alt="<?= htmlspecialchars($book->ten_sach) ?>"
+                                class="order-item-image">
+
                             <div class="order-item-info">
                                 <div class="order-item-name"><?= htmlspecialchars($book->ten_sach) ?></div>
                                 <div class="order-item-details">Số lượng: <?= $item['quantity'] ?></div>
@@ -264,33 +280,33 @@ $total = $subtotal - $totalDiscount;
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Xử lý chọn phương thức thanh toán
-    const paymentMethods = document.querySelectorAll('.payment-method');
-    paymentMethods.forEach(method => {
-        method.addEventListener('click', function() {
-            paymentMethods.forEach(m => m.classList.remove('selected'));
-            this.classList.add('selected');
-            const radio = this.querySelector('input[type="radio"]');
-            radio.checked = true;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý chọn phương thức thanh toán
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+            });
+        });
+
+        // Xử lý submit form
+        const checkoutForm = document.getElementById('checkoutForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const paymentLoading = document.getElementById('paymentLoading');
+
+        checkoutForm.addEventListener('submit', function(e) {
+            const selectedPayment = document.querySelector('input[name="id_pttt"]:checked').value;
+
+            // Nếu là thanh toán online, hiển thị loading
+            if (selectedPayment !== 'PT001') {
+                submitBtn.disabled = true;
+                paymentLoading.classList.add('active');
+            }
         });
     });
-
-    // Xử lý submit form
-    const checkoutForm = document.getElementById('checkoutForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const paymentLoading = document.getElementById('paymentLoading');
-    
-    checkoutForm.addEventListener('submit', function(e) {
-        const selectedPayment = document.querySelector('input[name="id_pttt"]:checked').value;
-        
-        // Nếu là thanh toán online, hiển thị loading
-        if (selectedPayment !== 'PT001') {
-            submitBtn.disabled = true;
-            paymentLoading.classList.add('active');
-        }
-    });
-});
 </script>
 
 <?php include_once '../includes/footer.php'; ?>

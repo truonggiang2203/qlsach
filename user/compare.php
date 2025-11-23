@@ -7,15 +7,30 @@ $compareModel = new Compare();
 $bookModel = new Book();
 $compareItems = $compareModel->getItems();
 $compareCount = $compareModel->getCount();
+function getBookImageCompare($id_sach)
+{
+    $base = "/qlsach/public/uploads/";
+    $full = __DIR__ . "/../public/uploads/";
+    $exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+    foreach ($exts as $ext) {
+        if (file_exists($full . $id_sach . "." . $ext)) {
+            return $base . $id_sach . "." . $ext;
+        }
+    }
+
+    return $base . "default-book.png";
+}
+
 ?>
 
 <div class="container" style="margin-top: 30px; margin-bottom: 50px;">
     <div class="compare-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h2>So sánh sách (<?= $compareCount ?>/<?= $compareModel->getMaxItems() ?>)</h2>
         <?php if ($compareCount > 0): ?>
-            <a href="/qlsach/controllers/compareController.php?action=clear" 
-               class="btn btn-danger"
-               onclick="return confirm('Bạn có chắc muốn xóa toàn bộ danh sách so sánh?');">
+            <a href="/qlsach/controllers/compareController.php?action=clear"
+                class="btn btn-danger"
+                onclick="return confirm('Bạn có chắc muốn xóa toàn bộ danh sách so sánh?');">
                 Xóa tất cả
             </a>
         <?php endif; ?>
@@ -38,19 +53,22 @@ $compareCount = $compareModel->getCount();
                         <th style="min-width: 200px;">Thông tin</th>
                         <?php foreach ($compareItems as $item): ?>
                             <th style="min-width: 250px; position: relative;">
-                                <a href="/qlsach/controllers/compareController.php?action=remove&id_sach=<?= $item['id_sach'] ?>" 
-                                   class="compare-remove-btn"
-                                   onclick="return confirm('Xóa sách này khỏi danh sách so sánh?');"
-                                   title="Xóa">
+                                <a href="/qlsach/controllers/compareController.php?action=remove&id_sach=<?= $item['id_sach'] ?>"
+                                    class="compare-remove-btn"
+                                    onclick="return confirm('Xóa sách này khỏi danh sách so sánh?');"
+                                    title="Xóa">
                                     ✕
                                 </a>
                                 <div class="compare-book-card">
-                                    <img src="<?= htmlspecialchars($item['hinh_anh'] ?: 'https://via.placeholder.com/200x300?text=' . urlencode($item['ten_sach'])) ?>" 
-                                         alt="<?= htmlspecialchars($item['ten_sach']) ?>"
-                                         style="width: 100%; max-width: 150px; height: auto; border-radius: 8px; margin-bottom: 10px;">
+                                    <img src="<?= getBookImageCompare($item['id_sach']) ?>"
+                                        alt="<?= htmlspecialchars($item['ten_sach']) ?>"
+                                        style="width: 100%; max-width: 200px; height: auto; border-radius: 12px;
+       box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 14px;">
+
+
                                     <h3 style="font-size: 16px; margin: 10px 0; color: var(--primary);">
-                                        <a href="/qlsach/public/book_detail.php?id_sach=<?= $item['id_sach'] ?>" 
-                                           style="color: var(--primary); text-decoration: none;">
+                                        <a href="/qlsach/public/book_detail.php?id_sach=<?= $item['id_sach'] ?>"
+                                            style="color: var(--primary); text-decoration: none;">
                                             <?= htmlspecialchars($item['ten_sach']) ?>
                                         </a>
                                     </h3>
@@ -102,7 +120,7 @@ $compareCount = $compareModel->getCount();
                     <!-- Giá -->
                     <tr>
                         <td class="compare-label"><strong>Giá</strong></td>
-                        <?php foreach ($compareItems as $item): 
+                        <?php foreach ($compareItems as $item):
                             $discountedPrice = $item['gia_sach_ban'] * (1 - ($item['phan_tram_km'] / 100));
                         ?>
                             <td>
@@ -171,9 +189,9 @@ $compareCount = $compareModel->getCount();
                         <td class="compare-label"><strong>Thao tác</strong></td>
                         <?php foreach ($compareItems as $item): ?>
                             <td>
-                                <a href="/qlsach/public/book_detail.php?id_sach=<?= $item['id_sach'] ?>" 
-                                   class="btn btn-primary" 
-                                   style="display: inline-block; margin-bottom: 5px; width: 100%;">
+                                <a href="/qlsach/public/book_detail.php?id_sach=<?= $item['id_sach'] ?>"
+                                    class="btn btn-primary"
+                                    style="display: inline-block; margin-bottom: 5px; width: 100%;">
                                     Xem chi tiết
                                 </a>
                                 <br>
@@ -203,80 +221,79 @@ $compareCount = $compareModel->getCount();
 </div>
 
 <style>
-.compare-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.compare-table th,
-.compare-table td {
-    padding: 15px;
-    text-align: left;
-    border: 1px solid #e0e0e0;
-    vertical-align: top;
-}
-
-.compare-table th {
-    background: var(--primary);
-    color: white;
-    font-weight: bold;
-    text-align: center;
-}
-
-.compare-table .compare-label {
-    background: #f8f9fa;
-    font-weight: 600;
-    width: 200px;
-}
-
-.compare-remove-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--danger);
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.3s;
-    z-index: 10;
-}
-
-.compare-remove-btn:hover {
-    background: #c82333;
-    transform: scale(1.1);
-}
-
-.compare-book-card {
-    text-align: center;
-    padding: 10px;
-}
-
-.compare-book-card img {
-    margin: 0 auto;
-    display: block;
-}
-
-@media (max-width: 768px) {
-    .compare-table-wrapper {
-        overflow-x: scroll;
-    }
-    
     .compare-table {
-        min-width: 800px;
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
     }
-}
+
+    .compare-table th,
+    .compare-table td {
+        padding: 15px;
+        text-align: left;
+        border: 1px solid #e0e0e0;
+        vertical-align: top;
+    }
+
+    .compare-table th {
+        background: var(--primary);
+        color: white;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .compare-table .compare-label {
+        background: #f8f9fa;
+        font-weight: 600;
+        width: 200px;
+    }
+
+    .compare-remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--danger);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+        transition: all 0.3s;
+        z-index: 10;
+    }
+
+    .compare-remove-btn:hover {
+        background: #c82333;
+        transform: scale(1.1);
+    }
+
+    .compare-book-card {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .compare-book-card img {
+        margin: 0 auto;
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .compare-table-wrapper {
+            overflow-x: scroll;
+        }
+
+        .compare-table {
+            min-width: 800px;
+        }
+    }
 </style>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-
