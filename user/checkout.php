@@ -90,7 +90,7 @@ $total = $subtotal - $totalDiscount;
 
 <div class="checkout-page">
     <div class="checkout-header">
-        <h2>💳 Thanh toán đơn hàng</h2>
+        <h2>Thanh toán đơn hàng</h2>
         <p style="color: #666; margin-top: 8px;">Vui lòng kiểm tra thông tin đơn hàng và thanh toán</p>
 
         <div class="checkout-steps">

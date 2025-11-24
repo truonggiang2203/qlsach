@@ -305,7 +305,7 @@ bubble.onclick = () => {
                 <div class="msg-line">
                     <img src="${botAvatar}" class="avatar">
                     <div class="msg-bot">
-                        Xin chào! 👋<br>
+                        Xin chào!<br>
                         Mình là chatbot hỗ trợ QL Sách.<br>
                         Bạn muốn hỏi gì không?
                     </div>
@@ -356,7 +356,7 @@ document.addEventListener("click", function(e) {
             box.innerHTML += `
                 <div class="msg-line">
                     <img src="${botAvatar}" class="avatar">
-                    <div class="msg-bot">🛒 Đã thêm <strong>${id}</strong> vào giỏ hàng!</div>
+                    <div class="msg-bot">Đã thêm <strong>${id}</strong> vào giỏ hàng!</div>
                 </div>
             `;
             box.scrollTop = box.scrollHeight;
