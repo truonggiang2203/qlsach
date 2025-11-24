@@ -3,6 +3,9 @@ include_once '../includes/header.php';
 require_once '../models/Book.php';
 require_once '../models/Comment.php';
 // Category.php đã được nạp trong header
+?>
+<link rel="stylesheet" href="/qlsach/public/css/book-detail.css">
+<?php
 
 $bookModel = new Book();
 $commentModel = new Comment();
@@ -80,7 +83,7 @@ function getBookImagePath($id_sach) {
 }
 ?>
 
-<div class="container" style="margin-top: 30px; margin-bottom: 30px;">
+<div class="book-detail-container">
     <div class="product-detail-layout">
 
         <div class="product-gallery">
@@ -156,13 +159,10 @@ function getBookImagePath($id_sach) {
                 Tình trạng: <strong>Còn <?= (int)$book->so_luong_ton; ?> sản phẩm</strong>
             </p>
 
-            <!-- FORM + WISHLIST BUTTON WRAP -->
-            <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
-
+            <!-- PRODUCT ACTIONS -->
+            <div class="product-actions-container">
                 <!-- FORM ADD TO CART -->
-                <form action="/qlsach/controllers/cartController.php?action=add" method="POST"
-                    style="display:flex; align-items:center; gap:12px;">
-
+                <form action="/qlsach/controllers/cartController.php?action=add" method="POST" style="display:flex; align-items:center; gap:12px; flex:1;">
                     <input type="hidden" name="id_sach" value="<?= $book->id_sach; ?>">
 
                     <div class="quantity-selector">
@@ -171,44 +171,40 @@ function getBookImagePath($id_sach) {
                             value="1" min="1" max="<?= (int)$book->so_luong_ton; ?>">
                     </div>
 
-                    <button type="submit"
-                        class="btn-primary"
-                        style="padding:12px 26px; font-size:16px; border-radius:6px;">
-                        🛒 Thêm vào giỏ hàng
+                    <button type="submit" class="btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        Thêm vào giỏ hàng
                     </button>
                 </form>
 
                 <!-- WISHLIST BUTTON -->
                 <?php if (!isset($_SESSION['id_tk'])): ?>
-                    <a href="/qlsach/guest/login.php"
-                        style="background:var(--danger); padding:12px 20px; border-radius:6px;
-              color:white; font-size:18px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;"
-                        title="Yêu thích">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <a href="/qlsach/guest/login.php" class="btn-wishlist" title="Yêu thích">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
-                        Thêm vào yêu thích
+                        Yêu thích
                     </a>
                 <?php else: ?>
                     <?php if ($isWishlisted): ?>
                         <a href="/qlsach/controllers/wishlistController.php?action=remove&id_sach=<?= $id_sach ?>"
-                            style="background:var(--danger); padding:12px 20px; border-radius:6px;
-                  color:white; font-size:18px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;"
-                            title="Bỏ yêu thích">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            class="btn-wishlist active" title="Bỏ yêu thích">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                             </svg>
-                            Đã yêu thích - Bỏ yêu thích
+                            Đã yêu thích
                         </a>
                     <?php else: ?>
                         <a href="/qlsach/controllers/wishlistController.php?action=add&id_sach=<?= $id_sach ?>"
-                            style="background:var(--danger); padding:12px 20px; border-radius:6px;
-                  color:white; font-size:18px; text-decoration:none; display:inline-flex; align-items:center; gap:8px;"
-                            title="Thêm vào yêu thích">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            class="btn-wishlist" title="Thêm vào yêu thích">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                             </svg>
-                            Thêm vào yêu thích
+                            Yêu thích
                         </a>
                     <?php endif; ?>
                 <?php endif; ?>
@@ -216,18 +212,24 @@ function getBookImagePath($id_sach) {
                 <!-- COMPARE BUTTON -->
                 <?php if ($isInCompare): ?>
                     <a href="/qlsach/controllers/compareController.php?action=remove&id_sach=<?= $id_sach ?>"
-                       class="btn-compare btn-compare-active"
-                       title="Xóa khỏi danh sách so sánh">
-                        ⚖️ Đã thêm
+                       class="btn-compare btn-compare-active" title="Xóa khỏi danh sách so sánh">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Đã thêm
                     </a>
                 <?php else: ?>
                     <a href="/qlsach/controllers/compareController.php?action=add&id_sach=<?= $id_sach ?>"
-                       class="btn-compare"
-                       title="Thêm vào danh sách so sánh">
-                        ⚖️ So sánh
+                       class="btn-compare" title="Thêm vào danh sách so sánh">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        So sánh
                     </a>
                 <?php endif; ?>
-
             </div>
             <div class="product-accordion">
 
@@ -500,10 +502,12 @@ function getBookImagePath($id_sach) {
             </div>
         </div>
     </div>
+</div>
+</div> <!-- Close page-container -->
 
-    <!-- SÁCH CÙNG THỂ LOẠI -->
-    <?php if (!empty($sameCategoryBooks)): ?>
-        <div class="related-books-section" style="margin-top: 40px;">
+<!-- SÁCH CÙNG THỂ LOẠI -->
+<?php if (!empty($sameCategoryBooks)): ?>
+    <div class="related-books-section-fullwidth">
             <div class="section-header">
                 <h2 class="section-title">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -550,11 +554,35 @@ function getBookImagePath($id_sach) {
                                 </a>
                             </h4>
                             <div class="product-price">
+                                <?= number_format($relatedDiscountPrice, 0, ',', '.') ?>đ
                                 <?php if ($relatedBook->phan_tram_km > 0): ?>
-                                    <?= number_format($relatedDiscountPrice, 0, ',', '.') ?>đ
                                     <span class="discount">-<?= $relatedBook->phan_tram_km ?>%</span>
-                                <?php else: ?>
-                                    <?= number_format($relatedBook->gia_sach_ban, 0, ',', '.') ?>đ
+                                <?php endif; ?>
+                            </div>
+                            <?php
+                                $relatedRating = $commentModel->getAverageRating($relatedBook->id_sach);
+                            ?>
+                            <div class="product-rating-block">
+                                <?php
+                                $avgRating = $relatedRating['average'];
+                                $fullStars = floor($avgRating);
+                                $hasHalfStar = ($avgRating - $fullStars) >= 0.5;
+                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                                ?>
+                                <div class="product-rating">
+                                    <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                                        <span class="star star-full">★</span>
+                                    <?php endfor; ?>
+                                    <?php if ($hasHalfStar): ?>
+                                        <span class="star star-half">★</span>
+                                    <?php endif; ?>
+                                    <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                                        <span class="star star-empty">★</span>
+                                    <?php endfor; ?>
+                                </div>
+                                <?php if ($relatedRating['count'] > 0): ?>
+                                    <span class="rating-number"><?= number_format($relatedRating['average'], 1) ?></span>
+                                    <span class="rating-count">(<?= $relatedRating['count'] ?>)</span>
                                 <?php endif; ?>
                             </div>
                             <div class="product-actions">
@@ -568,80 +596,8 @@ function getBookImagePath($id_sach) {
                     </div>
                 <?php endforeach; ?>
             </div>
-        </div>
-    <?php endif; ?>
-
-    <!-- SÁCH GỢI Ý -->
-    <?php if (!empty($recommendedBooks)): ?>
-        <div class="recommended-books-section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                        <path d="M2 17l10 5 10-5"></path>
-                        <path d="M2 12l10 5 10-5"></path>
-                    </svg>
-                    <?= $id_tk ? 'Gợi ý dành cho bạn' : 'Sách bán chạy' ?>
-                </h2>
-            </div>
-            <div class="product-grid">
-                <?php foreach ($recommendedBooks as $recBook): 
-                    $recDiscountPrice = $recBook->gia_sach_ban * (1 - ($recBook->phan_tram_km ?? 0) / 100);
-                    $isRecWishlisted = isset($userWishlist[$recBook->id_sach]);
-                ?>
-                    <div class="product-item">
-                        <!-- Wishlist Button -->
-                        <?php if (isset($_SESSION['id_tk'])): ?>
-                            <a href="#" 
-                               class="product-item-wishlist-btn <?= $isRecWishlisted ? 'active' : '' ?>"
-                               data-book-id="<?= $recBook->id_sach ?>"
-                               title="<?= $isRecWishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích' ?>">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="<?= $isRecWishlisted ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </a>
-                        <?php else: ?>
-                            <a href="/qlsach/guest/login.php" 
-                               class="product-item-wishlist-btn"
-                               title="Đăng nhập để thêm vào yêu thích">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </a>
-                        <?php endif; ?>
-                        
-                        <a href="/qlsach/public/book_detail.php?id_sach=<?= $recBook->id_sach ?>">
-                            <img src="<?= getBookImagePath($recBook->id_sach) ?>" 
-                                 alt="<?= htmlspecialchars($recBook->ten_sach) ?>">
-                        </a>
-                        <div class="product-info">
-                            <h4>
-                                <a href="/qlsach/public/book_detail.php?id_sach=<?= $recBook->id_sach ?>">
-                                    <?= htmlspecialchars($recBook->ten_sach) ?>
-                                </a>
-                            </h4>
-                            <div class="product-price">
-                                <?php if ($recBook->phan_tram_km > 0): ?>
-                                    <?= number_format($recDiscountPrice, 0, ',', '.') ?>đ
-                                    <span class="discount">-<?= $recBook->phan_tram_km ?>%</span>
-                                <?php else: ?>
-                                    <?= number_format($recBook->gia_sach_ban, 0, ',', '.') ?>đ
-                                <?php endif; ?>
-                            </div>
-                            <div class="product-actions">
-                                <form action="/qlsach/controllers/cartController.php?action=add" method="POST" style="flex: 1;">
-                                    <input type="hidden" name="id_sach" value="<?= htmlspecialchars($recBook->id_sach) ?>">
-                                    <input type="hidden" name="so_luong" value="1">
-                                    <button type="submit" class="btn">🛒 Thêm vào giỏ</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
+    </div>
+<?php endif; ?>
 
 <script src="/qlsach/public/js/wishlist.js"></script>
 <script src="/qlsach/public/js/comment.js"></script>
