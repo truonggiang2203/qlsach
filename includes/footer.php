@@ -26,8 +26,6 @@
     </div>
 </footer>
 
-</div>
-
 <!-- ===================== CHATBOT WIDGET ===================== -->
 <link rel="stylesheet" href="/qlsach/public/css/chatbot.css">
 <script src="/qlsach/public/js/chatbot.js"></script>

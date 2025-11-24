@@ -333,12 +333,12 @@
 
 .btn-checkout {
     flex: 1;
-    padding: 16px 24px;
+    padding: 12px 20px;
     background: var(--primary);
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
@@ -361,18 +361,20 @@
 }
 
 .btn-back {
-    padding: 16px 24px;
+    flex: 1;
+    padding: 12px 20px;
     background: var(--light-bg);
     color: var(--text);
     border: 2px solid var(--border);
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s;
     text-decoration: none;
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 }
 
