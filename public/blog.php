@@ -32,7 +32,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     <!-- Hero Section -->
     <section class="blog-hero">
         <div class="blog-hero-content">
-            <h1>📰 Tin Tức & Blog</h1>
+            <h1>Tin Tức & Blog</h1>
             <p>Khám phá thế giới sách qua những bài viết, review và tin tức văn học mới nhất</p>
         </div>
     </section>
@@ -40,7 +40,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     <!-- Featured Posts -->
     <?php if (!empty($featuredPosts)): ?>
     <section class="featured-section">
-        <h2>✨ Bài Viết Nổi Bật</h2>
+        <h2>Bài Viết Nổi Bật</h2>
         <div class="featured-grid">
             <?php foreach ($featuredPosts as $post): ?>
                 <article class="featured-card">
@@ -67,7 +67,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     <div class="blog-layout">
         <!-- Main Content -->
         <main class="blog-main">
-            <h2>📚 Tất Cả Bài Viết</h2>
+            <h2>Tất Cả Bài Viết</h2>
             
             <?php if (empty($posts)): ?>
                 <div class="empty-state">
@@ -121,7 +121,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
         <aside class="blog-sidebar">
             <!-- Categories -->
             <div class="sidebar-widget">
-                <h3>📂 Danh Mục</h3>
+                <h3>Danh Mục</h3>
                 <ul class="category-list">
                     <?php foreach ($categories as $cat): ?>
                         <li>
@@ -137,7 +137,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
             <!-- Popular Posts -->
             <?php if (!empty($popularPosts)): ?>
                 <div class="sidebar-widget">
-                    <h3>🔥 Bài Viết Phổ Biến</h3>
+                    <h3>Bài Viết Phổ Biến</h3>
                     <ul class="popular-list">
                         <?php foreach ($popularPosts as $popular): ?>
                             <li>

@@ -35,14 +35,15 @@ $wishlistCount = $wishlistModel->getCount($_SESSION['id_tk']);
 $notificationUnread = $notificationModel->getUnreadCount($_SESSION['id_tk']);
 
 $statusBadges = [
-    'Chờ xử lý' => ['bg' => '#e3f2fd', 'color' => '#0d6efd', 'icon' => '⏳'],
-    'Đã xác nhận' => ['bg' => '#e0f7fa', 'color' => '#0d9488', 'icon' => '✓'],
-    'Đang giao hàng' => ['bg' => '#fff7e6', 'color' => '#f59e0b', 'icon' => '🚚'],
-    'Đã hoàn thành' => ['bg' => '#e8f9ef', 'color' => '#22c55e', 'icon' => '✅'],
-    'Đã hủy' => ['bg' => '#ffe5e5', 'color' => '#ef4444', 'icon' => '❌'],
+    'Chờ xử lý' => ['bg' => '#e3f2fd', 'color' => '#0d6efd', 'icon' => ''],
+    'Đã xác nhận' => ['bg' => '#e0f7fa', 'color' => '#0d9488', 'icon' => ''],
+    'Đang giao hàng' => ['bg' => '#fff7e6', 'color' => '#f59e0b', 'icon' => ''],
+    'Đã hoàn thành' => ['bg' => '#e8f9ef', 'color' => '#22c55e', 'icon' => ''],
+    'Đã hủy' => ['bg' => '#ffe5e5', 'color' => '#ef4444', 'icon' => ''],
 ];
 
-function formatCurrency($number) {
+function formatCurrency($number)
+{
     return number_format($number, 0, ',', '.') . 'đ';
 }
 ?>
@@ -65,42 +66,42 @@ function formatCurrency($number) {
                 <p>Tổng đơn hàng</p>
                 <h3><?= $orderSummary['total_orders'] ?></h3>
             </div>
-            <span class="summary-icon">🧾</span>
+            <span class="summary-icon"></span>
         </div>
         <div class="summary-card">
             <div>
                 <p>Đơn đang xử lý</p>
                 <h3><?= $orderSummary['pending_orders'] + $orderSummary['shipping_orders'] ?></h3>
             </div>
-            <span class="summary-icon">⚙️</span>
+            <span class="summary-icon"></span>
         </div>
         <div class="summary-card">
             <div>
                 <p>Đã hoàn thành</p>
                 <h3><?= $orderSummary['completed_orders'] ?></h3>
             </div>
-            <span class="summary-icon">✅</span>
+            <span class="summary-icon"></span>
         </div>
         <div class="summary-card">
             <div>
                 <p>Danh sách yêu thích</p>
                 <h3><?= $wishlistCount ?></h3>
             </div>
-            <span class="summary-icon">❤️</span>
+            <span class="summary-icon"></span>
         </div>
         <div class="summary-card">
             <div>
                 <p>Thông báo chưa đọc</p>
                 <h3><?= $notificationUnread ?></h3>
             </div>
-            <span class="summary-icon">🔔</span>
+            <span class="summary-icon"></span>
         </div>
         <div class="summary-card">
             <div>
                 <p>Chi tiêu (đã giao)</p>
                 <h3><?= formatCurrency($orderSummary['total_spent']) ?></h3>
             </div>
-            <span class="summary-icon">💳</span>
+            <span class="summary-icon"></span>
         </div>
     </section>
 
@@ -112,11 +113,11 @@ function formatCurrency($number) {
                         <h2>Thông tin cá nhân</h2>
                         <p>Cập nhật thông tin liên hệ của bạn</p>
                     </div>
-                    <span class="profile-icon">👤</span>
+                    <span class="profile-icon"></span>
                 </div>
 
                 <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success">✅ Cập nhật thông tin thành công!</div>
+                    <div class="alert alert-success">Cập nhật thông tin thành công!</div>
                 <?php endif; ?>
 
                 <form action="../controllers/userController.php?action=updateProfile" method="POST" class="profile-form-grid">
@@ -137,8 +138,8 @@ function formatCurrency($number) {
                         <textarea name="dia_chi" rows="2"><?= htmlspecialchars($user->dia_chi_giao_hang ?? '') ?></textarea>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" class="btn-primary">💾 Lưu thay đổi</button>
-                        <a href="change_password.php" class="btn-link">🔒 Đổi mật khẩu</a>
+                        <button type="submit" class="btn-primary">Lưu thay đổi</button>
+                        <a href="change_password.php" class="btn-link">Đổi mật khẩu</a>
                     </div>
                 </form>
             </div>
@@ -149,7 +150,7 @@ function formatCurrency($number) {
                         <h2>Sở thích & thông báo</h2>
                         <p>Kiểm soát các tùy chọn nhận thông tin của bạn</p>
                     </div>
-                    <span class="profile-icon">⚙️</span>
+                    <span class="profile-icon"></span>
                 </div>
                 <div class="preferences-grid">
                     <div class="toggle-row">
@@ -194,7 +195,7 @@ function formatCurrency($number) {
                         <h2>Trạng thái đơn hàng</h2>
                         <p>Hiện tại của tất cả đơn hàng</p>
                     </div>
-                    <span class="profile-icon">📦</span>
+                    <span class="profile-icon"></span>
                 </div>
                 <ul class="status-list">
                     <li>
@@ -222,15 +223,15 @@ function formatCurrency($number) {
                         <h2>Đơn hàng gần đây</h2>
                         <p>5 đơn mới nhất</p>
                     </div>
-                    <span class="profile-icon">🕒</span>
+                    <span class="profile-icon"></span>
                 </div>
                 <?php if (empty($recentOrders)): ?>
                     <p class="text-muted">Bạn chưa có đơn hàng nào.</p>
                 <?php else: ?>
                     <div class="recent-orders-list">
-                        <?php foreach ($recentOrders as $order): 
+                        <?php foreach ($recentOrders as $order):
                             $badge = $statusBadges[$order->trang_thai_dh] ?? ['bg' => '#f3f4f6', 'color' => '#4b5563', 'icon' => '•'];
-                            ?>
+                        ?>
                             <div class="recent-order-item">
                                 <div>
                                     <strong><?= htmlspecialchars($order->id_don_hang) ?></strong>

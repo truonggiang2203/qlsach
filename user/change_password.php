@@ -31,7 +31,7 @@ if (isset($_GET['error'])) {
 }
 
 if (isset($_GET['success']) && $_GET['success'] == 'changed') {
-    $success_msg = '✅ Đổi mật khẩu thành công!';
+    $success_msg = 'Đổi mật khẩu thành công!';
 }
 ?>
 <!DOCTYPE html>
@@ -39,7 +39,7 @@ if (isset($_GET['success']) && $_GET['success'] == 'changed') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đổi mật khẩu - Nhà sách Online</title>
+    <title>Đổi mật khẩu - Nhà Sách Tri Thức</title>
     <link rel="stylesheet" href="../public/css/style.css">
     <style>
         body {
@@ -173,7 +173,7 @@ if (isset($_GET['success']) && $_GET['success'] == 'changed') {
 
         <div class="password-card">
             <div class="password-header">
-                <h2>🔐 Đổi mật khẩu</h2>
+                <h2>Đổi mật khẩu</h2>
                 <p>Cập nhật mật khẩu cho tài khoản của bạn</p>
             </div>
 

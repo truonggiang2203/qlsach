@@ -56,7 +56,7 @@ $totalAuthors = count($authors);
     <!-- Authors Grid -->
     <section class="authors-list">
         <div class="section-header">
-            <h2>📚 Danh sách tác giả</h2>
+            <h2>Danh sách tác giả</h2>
             <p><?= $totalAuthors ?> tác giả</p>
         </div>
 

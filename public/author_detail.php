@@ -89,7 +89,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     <!-- Author Bio Section -->
     <section class="author-bio">
         <div class="bio-card">
-            <h2>📖 Giới thiệu về tác giả</h2>
+            <h2>Giới thiệu về tác giả</h2>
             
             <?php if (!empty($author->tieu_su)): ?>
                 <p class="bio-text"><?= nl2br(htmlspecialchars($author->tieu_su)) ?></p>
@@ -107,28 +107,28 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
             <div class="author-details">
                 <?php if (!empty($author->ngay_sinh)): ?>
                     <div class="detail-item">
-                        <strong>🎂 Ngày sinh:</strong>
+                        <strong>Ngày sinh:</strong>
                         <span><?= date('d/m/Y', strtotime($author->ngay_sinh)) ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if (!empty($author->quoc_tich)): ?>
                     <div class="detail-item">
-                        <strong>🌍 Quốc tịch:</strong>
+                        <strong>Quốc tịch:</strong>
                         <span><?= htmlspecialchars($author->quoc_tich) ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if (!empty($author->giai_thuong)): ?>
                     <div class="detail-item">
-                        <strong>🏆 Giải thưởng:</strong>
+                        <strong>Giải thưởng:</strong>
                         <span><?= htmlspecialchars($author->giai_thuong) ?></span>
                     </div>
                 <?php endif; ?>
 
                 <?php if (!empty($author->tac_pham_noi_bat)): ?>
                     <div class="detail-item">
-                        <strong>⭐ Tác phẩm nổi bật:</strong>
+                        <strong>Tác phẩm nổi bật:</strong>
                         <span><?= htmlspecialchars($author->tac_pham_noi_bat) ?></span>
                     </div>
                 <?php endif; ?>
@@ -137,7 +137,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
             <!-- Social Links -->
             <?php if (!empty($author->website) || !empty($author->facebook) || !empty($author->twitter) || !empty($author->instagram)): ?>
                 <div class="author-social">
-                    <strong>🔗 Liên kết:</strong>
+                    <strong>Liên kết:</strong>
                     <div class="social-links">
                         <?php if (!empty($author->website)): ?>
                             <a href="<?= htmlspecialchars($author->website) ?>" target="_blank" rel="noopener" class="social-link">
@@ -182,7 +182,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     <!-- Books Section -->
     <section class="author-books">
         <div class="section-header">
-            <h2>📚 Tác phẩm của <?= htmlspecialchars($author->ten_tac_gia) ?></h2>
+            <h2>Tác phẩm của <?= htmlspecialchars($author->ten_tac_gia) ?></h2>
             <p>Tìm thấy <?= $bookCount ?> cuốn sách</p>
         </div>
 

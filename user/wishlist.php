@@ -29,11 +29,11 @@ function getBookImagePath($id_sach) {
 // Hiển thị thông báo
 $message = '';
 if (isset($_GET['added'])) {
-    $message = '<div class="alert-success">✅ Đã thêm vào danh sách yêu thích!</div>';
+    $message = '<div class="alert-success">Đã thêm vào danh sách yêu thích!</div>';
 } elseif (isset($_GET['removed'])) {
-    $message = '<div class="alert-info">🗑️ Đã xóa khỏi danh sách yêu thích!</div>';
+    $message = '<div class="alert-info">Đã xóa khỏi danh sách yêu thích!</div>';
 } elseif (isset($_GET['cleared'])) {
-    $message = '<div class="alert-info">🗑️ Đã xóa tất cả khỏi danh sách yêu thích!</div>';
+    $message = '<div class="alert-info">Đã xóa tất cả khỏi danh sách yêu thích!</div>';
 }
 ?>
 
@@ -49,7 +49,7 @@ if (isset($_GET['added'])) {
     
     <!-- Wishlist Header -->
     <div class="wishlist-header">
-        <h1>❤️ Danh sách yêu thích</h1>
+        <h1>Danh sách yêu thích</h1>
         <p>Quản lý những cuốn sách bạn yêu thích</p>
         <?php if (!empty($wishlistItems)): ?>
             <span class="wishlist-count">
@@ -61,7 +61,7 @@ if (isset($_GET['added'])) {
     <?php if (empty($wishlistItems)): ?>
         <!-- Empty State -->
         <div class="wishlist-empty">
-            <div class="empty-icon">❤️</div>
+            <div class="empty-icon"></div>
             <h2>Danh sách yêu thích của bạn đang trống</h2>
             <p>Hãy thêm những cuốn sách bạn yêu thích vào danh sách để dễ dàng tìm lại sau này!</p>
             <a href="/qlsach/public/index.php" class="btn-browse-books">
@@ -148,7 +148,7 @@ if (isset($_GET['added'])) {
                             </div>
                             <?php if (isset($book->ten_nxb)): ?>
                                 <div style="font-size: 12px; color: #999;">
-                                    📚 <?= htmlspecialchars($book->ten_nxb) ?>
+                                     <?= htmlspecialchars($book->ten_nxb) ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -242,7 +242,7 @@ function addToCart(idSach, button) {
     .then(data => {
         // Show success message
         const originalText = button.innerHTML;
-        button.innerHTML = '✅ Đã thêm!';
+        button.innerHTML = 'Đã thêm!';
         button.style.background = '#4CAF50';
         
         // Update cart count (if you have a function for that)

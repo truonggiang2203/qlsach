@@ -95,7 +95,7 @@ if (!$reply && preg_match('/gia.*(s[0-9]+)/i', $msg_clean, $m)) {
     if ($res && $res->num_rows) {
         $row = $res->fetch_assoc();
         $reply = render_book_item($id, $row['ten_sach'], $row['gia_sach_ban']);
-        $reply .= "👉 Đây là giá mới nhất của sách $id.";
+        $reply .= "Đây là giá mới nhất của sách $id.";
         $_SESSION['last_book_id'] = $id;
     } else {
         $reply = "Không tìm thấy mã sách $id.";
@@ -128,7 +128,7 @@ if (!$reply && (
     $res = $conn->query($sql);
 
     if ($res && $res->num_rows > 0) {
-        $reply = "🎉 Các khuyến mãi đang áp dụng:<br>";
+        $reply = "Các khuyến mãi đang áp dụng:<br>";
         while ($row = $res->fetch_assoc()) {
             $reply .= "- {$row['ten_km']} (giảm {$row['phan_tram_km']}%)<br>";
         }
@@ -149,9 +149,9 @@ if (!$reply && preg_match('/(s[0-9]+).*?(con hang|con khong|het|ton)/i', $msg_cl
 
         $reply = render_book_item($id, $row['ten_sach']);
         if ($sl > 0) {
-            $reply .= "📦 Sách $id hiện còn khoảng <strong>$sl</strong> cuốn trong kho.";
+            $reply .= "Sách $id hiện còn khoảng <strong>$sl</strong> cuốn trong kho.";
         } else {
-            $reply .= "📦 Sách $id hiện đã <strong>hết hàng</strong>.";
+            $reply .= "Sách $id hiện đã <strong>hết hàng</strong>.";
         }
         $_SESSION['last_book_id'] = $id;
     } else {
@@ -174,9 +174,9 @@ if (!$reply && $lastBookId && (
         $sl = $row['so_luong_ton'];
         $reply = render_book_item($id, $row['ten_sach']);
         if ($sl > 0) {
-            $reply .= "📦 Sách $id hiện còn khoảng <strong>$sl</strong> cuốn.";
+            $reply .= "Sách $id hiện còn khoảng <strong>$sl</strong> cuốn.";
         } else {
-            $reply .= "📦 Sách $id hiện đã <strong>hết hàng</strong>.";
+            $reply .= "Sách $id hiện đã <strong>hết hàng</strong>.";
         }
     } else {
         $reply = "Mình không nhớ rõ cuốn bạn nói tới, bạn nhập lại mã sách giúp mình nhé.";
@@ -212,7 +212,7 @@ if (!$reply) {
                 LIMIT 5";
         $res = $conn->query($sql);
         if ($res && $res->num_rows) {
-            $reply = "📚 Một vài cuốn thuộc thể loại bạn quan tâm:<br>";
+            $reply = "Một vài cuốn thuộc thể loại bạn quan tâm:<br>";
             while ($row = $res->fetch_assoc()) {
                 $reply .= render_book_item($row['id_sach'], $row['ten_sach']);
                 $_SESSION['last_book_id'] = $row['id_sach'];
@@ -247,7 +247,7 @@ if (!$reply && (strpos($msg_clean, "tac gia") !== false || strpos($msg_clean, "s
                 LIMIT 5";
         $res = $conn->query($sql);
         if ($res && $res->num_rows) {
-            $reply = "📚 Một vài sách của tác giả <strong>{$foundAuthor['ten_tac_gia']}</strong>:<br>";
+            $reply = "Một vài sách của tác giả <strong>{$foundAuthor['ten_tac_gia']}</strong>:<br>";
             while ($row = $res->fetch_assoc()) {
                 $reply .= render_book_item($row['id_sach'], $row['ten_sach']);
                 $_SESSION['last_book_id'] = $row['id_sach'];
@@ -272,7 +272,7 @@ if (!$reply && (
             LIMIT 5";
     $res = $conn->query($sql);
     if ($res && $res->num_rows) {
-        $reply = "🔥 Top sách bán chạy:<br>";
+        $reply = "Top sách bán chạy:<br>";
         while ($row = $res->fetch_assoc()) {
             $reply .= render_book_item($row['id_sach'], $row['ten_sach']);
             $reply .= "Đã bán: <strong>{$row['total']}</strong> cuốn<br><br>";
@@ -293,7 +293,7 @@ if (!$reply) {
 
     $res = $conn->query($sql);
     if ($res && $res->num_rows > 0) {
-        $reply = "📚 Mình tìm thấy vài cuốn liên quan:<br>";
+        $reply = "Mình tìm thấy vài cuốn liên quan:<br>";
         while ($row = $res->fetch_assoc()) {
             $reply .= render_book_item($row['id_sach'], $row['ten_sach']);
             $_SESSION['last_book_id'] = $row['id_sach'];
@@ -303,7 +303,7 @@ if (!$reply) {
 
 // 4.10 Fallback cuối cùng
 if (!$reply) {
-    $reply = "Mình chưa hiểu câu hỏi này 😅<br>Bạn có thể hỏi:<br>
+    $reply = "Mình chưa hiểu câu hỏi này!<br>Bạn có thể hỏi:<br>
     - Giá sách (VD: <strong>Giá sách S0001</strong>)<br>
     - Đơn hàng (VD: <strong>Đơn DH176</strong>)<br>
     - Khuyến mãi<br>
