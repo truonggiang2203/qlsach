@@ -23,11 +23,11 @@ function getBookImagePath($id_sach) {
 // Helper chuyển dữ liệu đơn hàng sang JSON cho panel
 function buildOrderPayload($order, $details, $paymentInfo) {
     $statusConfig = [
-        'Chờ xử lý' => ['color' => '#0d6efd', 'icon' => '⏳', 'bg' => '#e7f1ff'],
-        'Đã xác nhận' => ['color' => '#0d9488', 'icon' => '✓', 'bg' => '#e0f7fa'],
-        'Đang giao hàng' => ['color' => '#f59e0b', 'icon' => '🚚', 'bg' => '#fff7e6'],
-        'Đã hoàn thành' => ['color' => '#22c55e', 'icon' => '✅', 'bg' => '#e8f9ef'],
-        'Đã hủy' => ['color' => '#ef4444', 'icon' => '❌', 'bg' => '#ffe5e5'],
+        'Chờ xử lý' => ['color' => '#0d6efd', 'icon' => '', 'bg' => '#e7f1ff'],
+        'Đã xác nhận' => ['color' => '#0d9488', 'icon' => '', 'bg' => '#e0f7fa'],
+        'Đang giao hàng' => ['color' => '#f59e0b', 'icon' => '', 'bg' => '#fff7e6'],
+        'Đã hoàn thành' => ['color' => '#22c55e', 'icon' => '', 'bg' => '#e8f9ef'],
+        'Đã hủy' => ['color' => '#ef4444', 'icon' => '', 'bg' => '#ffe5e5'],
     ];
     $status = $order->trang_thai_dh;
     $statusStyle = $statusConfig[$status] ?? ['color' => '#4b5563', 'icon' => '•', 'bg' => '#f3f4f6'];
@@ -76,7 +76,7 @@ function buildOrderPayload($order, $details, $paymentInfo) {
 // Hiển thị thông báo
 $message = '';
 if (isset($_GET['cancel'])) {
-    $message = '<div class="alert-success">✅ Đã hủy đơn hàng thành công!</div>';
+    $message = '<div class="alert-success">Đã hủy đơn hàng thành công!</div>';
 }
 ?>
 
@@ -84,7 +84,7 @@ if (isset($_GET['cancel'])) {
 
 <div class="orders-page">
     <div class="orders-header">
-        <h1>📦 Đơn hàng của tôi</h1>
+        <h1>Đơn hàng của tôi</h1>
         <p>Quản lý và theo dõi đơn hàng của bạn</p>
     </div>
 
@@ -97,7 +97,7 @@ if (isset($_GET['cancel'])) {
     <?php if (empty($orders)): ?>
         <!-- Empty State -->
         <div class="orders-empty">
-            <div class="empty-icon">📦</div>
+            <div class="empty-icon"></div>
             <h2>Bạn chưa có đơn hàng nào</h2>
             <p>Hãy khám phá và mua sắm những cuốn sách bạn yêu thích!</p>
             <a href="/qlsach/public/index.php" class="btn-browse-books">
@@ -188,7 +188,7 @@ if (isset($_GET['cancel'])) {
 
                     <!-- Timeline Trạng Thái -->
                     <div class="panel-section">
-                        <h4>🚚 Trạng thái đơn hàng</h4>
+                        <h4>Trạng thái đơn hàng</h4>
                         <div class="order-timeline" id="orderTimeline"></div>
                     </div>
 
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isCompleted = data.status_badge.text === 'Đã hoàn thành';
             const reviewButton = isCompleted ? `
                 <a href="${item.link}#review-section" class="btn-review-product" title="Đánh giá sản phẩm">
-                    ⭐ Đánh giá
+                    Đánh giá
                 </a>
             ` : '';
             
@@ -315,10 +315,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderTimeline(currentStatus) {
         const statuses = [
-            { name: 'Chờ xử lý', icon: '⏳' },
-            { name: 'Đã xác nhận', icon: '✓' },
-            { name: 'Đang giao hàng', icon: '🚚' },
-            { name: 'Đã hoàn thành', icon: '✅' }
+            { name: 'Chờ xử lý', icon: '' },
+            { name: 'Đã xác nhận', icon: '' },
+            { name: 'Đang giao hàng', icon: '' },
+            { name: 'Đã hoàn thành', icon: '' }
         ];
 
         // Nếu đơn hàng bị hủy
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="timeline-item current">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content">
-                        <h5>❌ Đã hủy</h5>
+                        <h5>Đã hủy</h5>
                         <p>Đơn hàng đã bị hủy</p>
                     </div>
                 </div>

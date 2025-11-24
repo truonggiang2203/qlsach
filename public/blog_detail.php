@@ -67,7 +67,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
         <!-- Tags -->
         <?php if (!empty($tags)): ?>
             <div class="article-tags">
-                <strong>🏷️ Tags:</strong>
+                <strong>Tags:</strong>
                 <?php foreach ($tags as $tag): ?>
                     <a href="blog.php?tag=<?= htmlspecialchars($tag->slug) ?>" class="tag"><?= htmlspecialchars($tag->ten_tag) ?></a>
                 <?php endforeach; ?>
@@ -85,7 +85,7 @@ $baseUrl = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     <!-- Related Posts -->
     <?php if (!empty($relatedPosts)): ?>
         <section class="related-posts">
-            <h2>📖 Bài Viết Liên Quan</h2>
+            <h2>Bài Viết Liên Quan</h2>
             <div class="posts-grid">
                 <?php foreach ($relatedPosts as $related): ?>
                     <article class="post-card">
