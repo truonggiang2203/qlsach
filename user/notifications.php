@@ -15,7 +15,7 @@ $unreadCount = $notificationModel->getUnreadCount();
 <div class="container" style="margin-top: 30px; max-width: 900px;">
     <div class="notifications-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
         <h2 style="margin: 0;">
-            🔔 Thông báo
+             Thông báo
             <?php if ($unreadCount > 0): ?>
                 <span style="background: var(--danger); color: white; padding: 4px 8px; border-radius: 12px; font-size: 14px; margin-left: 8px;">
                     <?= $unreadCount ?> chưa đọc
@@ -63,19 +63,19 @@ $unreadCount = $notificationModel->getUnreadCount();
                                 if (isset($notif['type'])) {
                                     switch ($notif['type']) {
                                         case 'success':
-                                            $typeIcon = '✅';
+                                            $typeIcon = '';
                                             $typeColor = '#4CAF50';
                                             break;
                                         case 'warning':
-                                            $typeIcon = '⚠️';
+                                            $typeIcon = '';
                                             $typeColor = '#FF9800';
                                             break;
                                         case 'error':
-                                            $typeIcon = '❌';
+                                            $typeIcon = '';
                                             $typeColor = 'var(--danger)';
                                             break;
                                         default:
-                                            $typeIcon = '🔔';
+                                            $typeIcon = '';
                                     }
                                 }
                                 ?>
@@ -91,7 +91,7 @@ $unreadCount = $notificationModel->getUnreadCount();
                                 <?= htmlspecialchars($notif['message'] ?? '') ?>
                             </p>
                             <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #999;">
-                                <span>📅 <?= isset($notif['created_at']) ? date('d/m/Y H:i', strtotime($notif['created_at'])) : 'Vừa xong' ?></span>
+                                <span> <?= isset($notif['created_at']) ? date('d/m/Y H:i', strtotime($notif['created_at'])) : 'Vừa xong' ?></span>
                                 <?php if (isset($notif['link']) && $notif['link']): ?>
                                     <a href="<?= htmlspecialchars($notif['link']) ?>" 
                                        style="color: var(--primary); text-decoration: none; font-weight: 500;">

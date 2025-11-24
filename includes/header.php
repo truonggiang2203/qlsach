@@ -31,7 +31,7 @@ $notificationCount = $notificationModelNav->getUnreadCount();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QLSách - Cửa hàng sách</title>
+    <title>NSTT - Nhà Sách Tri Thức</title>
     <link rel="stylesheet" href="/qlsach/public/css/style.css">
     <link rel="stylesheet" href="/qlsach/public/css/wishlist-button.css">
     <?php if (strpos($_SERVER['REQUEST_URI'], 'checkout') !== false): ?>
@@ -70,7 +70,7 @@ $notificationCount = $notificationModelNav->getUnreadCount();
         <div class="header-logo">
             <a href="/qlsach/public/index.php" class="logo-link">
                 <span class="logo-icon">📚</span>
-                <span class="logo-text">QLSách</span>
+                <span class="logo-text">Nhà Sách Tri Thức</span>
             </a>
         </div>
 

@@ -30,7 +30,7 @@ $isPaymentSuccess = $payment_status === 'success' || ($paymentInfo && $paymentIn
             <p style="color: #666; margin-bottom: 24px;">Cảm ơn bạn đã mua sắm tại <b style="color: var(--primary);">Nhà Sách Tri Thức</b>. Đơn hàng của bạn đã được xác nhận.</p>
             <?php if ($paymentInfo && $paymentInfo->ten_pttt && strpos($paymentInfo->ten_pttt, 'COD') !== false): ?>
                 <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 16px; border-radius: 6px; margin-bottom: 24px; text-align: left;">
-                    <strong style="color: #856404;">💡 Lưu ý:</strong>
+                    <strong style="color: #856404;">Lưu ý:</strong>
                     <p style="margin: 8px 0 0 0; color: #856404;">Bạn sẽ thanh toán khi nhận hàng. Vui lòng chuẩn bị đúng số tiền để thanh toán cho nhân viên giao hàng.</p>
                 </div>
             <?php endif; ?>
