@@ -1,5 +1,5 @@
 <?php
-// Lấy đường dẫn URI hiện tại, ví dụ: /admin/books/index.php
+// Lấy đường dẫn URI hiện tại
 $current_uri = $_SERVER['REQUEST_URI'];
 
 // --- Logic kiểm tra Active Menu ---
@@ -16,13 +16,14 @@ $is_users_page = (strpos($current_uri, '/admin/users/') !== false);
 // Kiểm tra các trang kho
 $is_kho_page = (strpos($current_uri, '/admin/kho/') !== false);
 
-// Kiểm tra các trang Tác giả/NXB (Đề xuất: /admin/meta/)
-$is_meta_page = (strpos($current_uri, '/admin/meta/') !== false);
+// Kiểm tra các trang Tác giả/NXB
+$is_meta_page = (strpos($current_uri, '/admin/tg_nxb/') !== false);
+
+// --- MỚI: Kiểm tra các trang Blog/Bài viết ---
+$is_blog_page = (strpos($current_uri, '/admin/blog/') !== false);
 
 // Kiểm tra các trang Báo cáo
 $is_report_page = (strpos($current_uri, '/admin/reports/') !== false);
-
-
 
 ?>
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -175,6 +176,42 @@ $is_report_page = (strpos($current_uri, '/admin/reports/') !== false);
                         <li class="nav-item">
                             <a href="/qlsach/admin/tg_nxb/languages.php" class="nav-link"> <i class="far fa-circle nav-icon"></i>
                                 <p>Ngôn Ngữ</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item <?php echo $is_blog_page ? 'menu-open' : ''; ?>">
+                    <a href="#" class="nav-link <?php echo $is_blog_page ? 'active' : ''; ?>">
+                        <i class="nav-icon fas fa-newspaper"></i>
+                        <p>
+                            Quản Lý Bài Viết
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/qlsach/admin/blog/index.php" class="nav-link <?php echo (strpos($current_uri, '/admin/blog/index.php') !== false) ? 'active' : ''; ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Tất Cả Bài Viết</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/qlsach/admin/blog/create.php" class="nav-link <?php echo (strpos($current_uri, '/admin/blog/create.php') !== false) ? 'active' : ''; ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Viết Bài Mới</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/qlsach/admin/blog/categories.php" class="nav-link <?php echo (strpos($current_uri, '/admin/blog/categories.php') !== false) ? 'active' : ''; ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Danh Mục</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/qlsach/admin/blog/tags.php" class="nav-link <?php echo (strpos($current_uri, '/admin/blog/tags.php') !== false) ? 'active' : ''; ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Thẻ (Tags)</p>
                             </a>
                         </li>
                     </ul>

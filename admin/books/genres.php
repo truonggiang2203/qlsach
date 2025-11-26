@@ -1,5 +1,4 @@
 <?php
-
 include '../includes/header.php';
 include '../includes/db.php';
 
@@ -8,6 +7,7 @@ $success = '';
 $edit_mode = false;
 $genre_to_edit = null;
 
+// Lấy thông báo flash
 if (isset($_SESSION['success_message'])) {
     $success = $_SESSION['success_message'];
     unset($_SESSION['success_message']);
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         if ($action_type == 'add') {
-            // ... (Phần code thêm mới giữ nguyên) ...
+            // Tạo ID tự động TLxxx
             $stmt_id = $pdo->query("SELECT id_the_loai FROM the_loai ORDER BY id_the_loai DESC LIMIT 1 FOR UPDATE");
             $last_item = $stmt_id->fetch();
             $new_id_num = 1;
@@ -42,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['success_message'] = "Thêm thể loại '$ten_the_loai' thành công!";
 
         } elseif ($action_type == 'edit') {
-            // ... (Phần code sửa giữ nguyên) ...
             $id_the_loai = $_POST['id_the_loai'];
             $stmt = $pdo->prepare("UPDATE the_loai SET ten_the_loai = ?, id_loai = ? WHERE id_the_loai = ?");
             $stmt->execute([$ten_the_loai, $id_loai, $id_the_loai]);
@@ -51,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } catch (Exception $e) {
         $_SESSION['error_message'] = "Đã xảy ra lỗi: " . $e->getMessage();
     }
-    header('Location: genres.php'); // Chuyển hướng để refresh
+    header('Location: genres.php');
     exit;
 }
 
@@ -69,8 +68,9 @@ if (isset($_GET['action'])) {
 
     if ($action == 'delete') {
         try {
-            
-            // Kiểm tra trong bảng trung gian sach_theloai
+            // --- [QUAN TRỌNG] SỬA LOGIC XÓA CHO DB MỚI ---
+            // Kiểm tra xem có sách nào dùng thể loại này không bằng cách check bảng trung gian `sach_theloai`
+            // Thay vì check bảng `sach` như cũ
             $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM sach_theloai WHERE id_the_loai = ?");
             $stmt_check->execute([$id_the_loai]);
             
@@ -81,7 +81,7 @@ if (isset($_GET['action'])) {
                 $stmt->execute([$id_the_loai]);
                 $_SESSION['success_message'] = "Xóa thể loại thành công!";
             }
-            
+            // --- KẾT THÚC SỬA ---
             
         } catch (Exception $e) {
             $_SESSION['error_message'] = "Lỗi khi xóa: " . $e->getMessage();
@@ -91,12 +91,12 @@ if (isset($_GET['action'])) {
     }
 }
 
-// Lấy danh sách tất cả thể loại (JOIN với loại sách)
+// Lấy danh sách tất cả thể loại
 $all_genres = $pdo->query("
     SELECT tl.id_the_loai, tl.ten_the_loai, ls.ten_loai 
     FROM the_loai tl
     JOIN loai_sach ls ON tl.id_loai = ls.id_loai
-    ORDER BY tl.id_the_loai
+    ORDER BY tl.id_the_loai DESC
 ")->fetchAll();
 
 ?>
@@ -107,13 +107,11 @@ $all_genres = $pdo->query("
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Quản Lý Thể Loại</h1>
-                </div>
+                <div class="col-sm-6"><h1 class="m-0">Quản Lý Thể Loại</h1></div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="../dashboard.php">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="index.php">Quản Lý Sách</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">Sách</a></li>
                         <li class="breadcrumb-item active">Thể Loại</li>
                     </ol>
                 </div>
@@ -123,18 +121,14 @@ $all_genres = $pdo->query("
 
     <section class="content">
         <div class="container-fluid">
-            <?php if ($error): ?>
-                <div class="alert alert-danger"><?php echo $error; ?></div>
-            <?php endif; ?>
-            <?php if ($success): ?>
-                <div class="alert alert-success"><?php echo $success; ?></div>
-            <?php endif; ?>
+            <?php if ($error) echo "<div class='alert alert-danger'>$error</div>"; ?>
+            <?php if ($success) echo "<div class='alert alert-success'>$success</div>"; ?>
 
             <div class="row">
                 <div class="col-md-4">
                     <div class="card <?php echo $edit_mode ? 'card-warning' : 'card-primary'; ?>">
                         <div class="card-header">
-                            <h3 class="card-title"><?php echo $edit_mode ? 'Chỉnh Sửa Thể Loại' : 'Thêm Thể Loại Mới'; ?></h3>
+                            <h3 class="card-title"><?php echo $edit_mode ? 'Sửa Thể Loại' : 'Thêm Thể Loại Mới'; ?></h3>
                         </div>
                         <form action="genres.php" method="POST">
                             <div class="card-body">
@@ -144,13 +138,13 @@ $all_genres = $pdo->query("
                                 <?php endif; ?>
                                 
                                 <div class="form-group">
-                                    <label for="ten_the_loai">Tên Thể Loại</label>
+                                    <label>Tên Thể Loại</label>
                                     <input type="text" class="form-control" name="ten_the_loai" 
                                            value="<?php echo $edit_mode ? htmlspecialchars($genre_to_edit['ten_the_loai']) : ''; ?>" required>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="id_loai">Thuộc Loại Sách</label>
+                                    <label>Thuộc Loại Sách</label>
                                     <select class="form-control" name="id_loai" required>
                                         <option value="">-- Chọn loại sách --</option>
                                         <?php foreach ($all_categories as $cat): ?>
@@ -167,7 +161,7 @@ $all_genres = $pdo->query("
                                     <?php echo $edit_mode ? 'Cập nhật' : 'Thêm Mới'; ?>
                                 </button>
                                 <?php if ($edit_mode): ?>
-                                    <a href="genres.php" class="btn btn-secondary">Hủy</a>
+                                    <a href="genres.php" class="btn btn-secondary float-right">Hủy</a>
                                 <?php endif; ?>
                             </div>
                         </form>
@@ -179,14 +173,14 @@ $all_genres = $pdo->query("
                         <div class="card-header">
                             <h3 class="card-title">Danh Sách Thể Loại</h3>
                         </div>
-                        <div class="card-body">
-                            <table class="table table-bordered table-striped">
+                        <div class="card-body table-responsive p-0" style="height: 500px;">
+                            <table class="table table-head-fixed text-nowrap table-striped">
                                 <thead>
                                     <tr>
-                                        <th style="width: 100px;">ID</th>
+                                        <th>ID</th>
                                         <th>Tên Thể Loại</th>
                                         <th>Thuộc Loại Sách</th>
-                                        <th style="width: 120px;">Thao Tác</th>
+                                        <th>Thao Tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -196,13 +190,8 @@ $all_genres = $pdo->query("
                                         <td><?php echo htmlspecialchars($genre['ten_the_loai']); ?></td>
                                         <td><?php echo htmlspecialchars($genre['ten_loai']); ?></td>
                                         <td>
-                                            <a href="genres.php?action=edit&id=<?php echo $genre['id_the_loai']; ?>" class="btn btn-info btn-sm">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="genres.php?action=delete&id=<?php echo $genre['id_the_loai']; ?>" class="btn btn-danger btn-sm"
-                                               onclick="return confirm('Bạn có chắc chắn muốn xóa? Thao tác này sẽ thất bại nếu vẫn còn Sách con.');">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <a href="genres.php?action=edit&id=<?php echo $genre['id_the_loai']; ?>" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
+                                            <a href="genres.php?action=delete&id=<?php echo $genre['id_the_loai']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');"><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
