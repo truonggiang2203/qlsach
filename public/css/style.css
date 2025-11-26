@@ -157,7 +157,9 @@ img {
 
 .search-btn {
     position: absolute;
-    right: 4px;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
     background: var(--primary);
     color: white;
     border: none;
@@ -173,7 +175,7 @@ img {
 
 .search-btn:hover {
     background: var(--primary-dark);
-    transform: scale(1.05);
+    transform: translateY(-50%) scale(1.05);
 }
 
 /* Header Actions */
