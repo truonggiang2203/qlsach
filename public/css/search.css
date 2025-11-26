@@ -567,3 +567,45 @@
         gap: 15px;
     }
 }
+/* ================================
+   Wishlist Button - Default (NOT active)
+================================ */
+.product-item-wishlist-btn {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    cursor: pointer;
+    
+    /* Trái tim rỗng, viền xám đậm */
+    color: #555;
+}
+
+.product-item-wishlist-btn svg {
+    stroke: currentColor !important;
+    fill: none !important;
+}
+
+/* ================================
+   Hover (still not liked)
+================================ */
+.product-item-wishlist-btn:hover {
+    color: #e63946;
+}
+
+/* ================================
+   ACTIVE (ĐÃ LIKE)
+================================ */
+.product-item-wishlist-btn.active {
+    background: #ff8fa3;   /* màu hồng như ảnh */
+    color: white !important;
+}
+
+.product-item-wishlist-btn.active svg {
+    fill: white !important;
+    stroke: white !important;
+}

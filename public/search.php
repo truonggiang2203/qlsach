@@ -173,7 +173,7 @@ $quickTags = ['Văn học', 'Kinh doanh', 'Tâm lý', 'Thiếu nhi', 'Self-help'
     <div class="search-layout">
         <aside class="search-filters">
             <form action="search.php" method="GET" class="filter-card">
-                <h3>🔍 Bộ lọc nâng cao</h3>
+                <h3>Bộ lọc nâng cao</h3>
 
                 <div class="form-group">
                     <label for="keyword">Từ khóa</label>

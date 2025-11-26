@@ -33,7 +33,7 @@ class Chatbot {
                     <div class="chat-header-info">
                         <div class="chat-avatar">🤖</div>
                         <div class="chat-header-text">
-                            <h3>Trợ Lý Ảo</h3>
+                            <h3>Nhà Sách Tri Thức</h3>
                             <p>Luôn sẵn sàng hỗ trợ bạn</p>
                         </div>
                     </div>
@@ -43,7 +43,7 @@ class Chatbot {
                 <!-- Body -->
                 <div class="chat-body" id="chatBody">
                     <div class="welcome-message">
-                        <h4>👋 Xin chào!</h4>
+                        <h4>Xin chào!</h4>
                         <p>Tôi có thể giúp gì cho bạn?</p>
                     </div>
                 </div>
@@ -275,10 +275,10 @@ class Chatbot {
                     updateCartCount();
                 }
             } else {
-                this.addBotMessage('❌ Không thể thêm vào giỏ hàng. Vui lòng thử lại.');
+                this.addBotMessage('Không thể thêm vào giỏ hàng. Vui lòng thử lại.');
             }
         } catch (error) {
-            this.addBotMessage('❌ Có lỗi xảy ra. Vui lòng thử lại.');
+            this.addBotMessage('Có lỗi xảy ra. Vui lòng thử lại.');
         }
     }
 }
