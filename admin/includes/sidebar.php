@@ -29,7 +29,7 @@ $is_report_page = (strpos($current_uri, '/admin/reports/') !== false);
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="/qlsach/admin/dashboard.php" class="brand-link">
         <i class="fas fa-book-reader brand-image img-circle elevation-3" style="font-size: 2rem; margin-left: 0.8rem;"></i>
-        <span class="brand-text font-weight-light">Quản Lý Sách</span>
+        <span class="brand-text font-weight-light">Nhà Sách Tri Thức</span>
     </a>
 
     <div class="sidebar">
